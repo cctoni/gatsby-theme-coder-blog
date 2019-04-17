@@ -1,1 +1,1 @@
-# howtographql2
+# Gatsby Theme for Coders!
