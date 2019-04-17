@@ -26,7 +26,7 @@ export default function Logo() {
       `}</style>
       <Link to="/">
         <div className="logo">
-          <img src={require('../assets/icons/howtographql.svg')} alt="" />
+          <img src={require('../../assets/icons/howtographql.svg')} alt="" />
           <span>How to GraphQL</span>
         </div>
       </Link>

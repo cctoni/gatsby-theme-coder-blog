@@ -1,3 +1,3 @@
 module.exports = {
-  __experimentalThemes: [{ resolve: "@howtographql/content", options: {} }]
+  __experimentalThemes: [{ resolve: "gatsby-theme-coder-blog", options: {} }]
 };

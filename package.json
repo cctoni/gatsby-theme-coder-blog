@@ -1,9 +1,9 @@
 {
-  "name": "howtographql2",
+  "name": "coder-blog",
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "develop": "yarn workspace site develop"
+    "dev": "yarn workspace site develop"
   },
   "workspaces": [
     "site",

@@ -10,7 +10,7 @@
     "clean": "gatsby clean"
   },
   "dependencies": {
-    "@howtographql/content": "*"
+    "gatsby-theme-coder-blog": "*"
   },
   "devDependencies": {
     "gatsby": "^2.3.24",
