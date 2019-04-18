@@ -75,6 +75,5 @@ export default {
   overlayZIndex: 100,
 
   // Font Family Stacks
-  fontStackMono:
-    "SFMono-Regular, 'Roboto Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace",
-};
+  fontStackMono: "SFMono-Regular, 'Roboto Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace",
+}

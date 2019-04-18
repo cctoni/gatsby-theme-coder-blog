@@ -1,0 +1,100 @@
+---
+alias: 'sorv3oo9sgl1'
+heroImage: https://prisma-tutorial-images.ams3.digitaloceanspaces.com/Hyrecar.png
+metaImage: https://prisma-tutorial-images.ams3.digitaloceanspaces.com/Hyrecar.png
+authors: [etelsv]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+
+<PostTitle>How HyreCar rewrote their app in 60 days with Prisma</PostTitle>
+
+<Abstract>
+  On the cusp of an IPO, HyreCar used Prisma to accelerate the buildout of a new GraphQL application and simplify the
+  migration to ensure an on-time launch.
+</Abstract>
+
+## Summary: Before and After
+
+- Difficulty onboarding new engineers to the HyreCar application **→** Easier developer onboarding process with more isolated services
+
+* Multiple weeks needed to launch a new feature **→** Changes go into production in under a week
+
+* Extremely short timeline in which to develop a new application from scratch **→** Prisma’s feature set accelerates development speed. A new application is built in 60 days
+
+## About HyreCar
+
+[HyreCar](https://hyrecar.com/) is a company that connects car owners to car-less individuals who want to drive for Uber and Lyft. As part of the exchange, HyreCar also works to ensure that all of their cars are insured for the duration of their usage.
+
+Founded in 2014, HyreCar moved rapidly toward an IPO in the summer of 2018. While their business model had proved itself highly successful, major challenges with the legacy HyreCar application (and the need for faster product iterations) required the company to reevaluate their technology stack.
+
+## HyreCar’s legacy app challenges
+
+The original HyreCar stack (running on PHP and MySQL with a REST API) was reaching its limits when the company started moving towards an IPO.
+
+- The application had been worked on by a variety of developer teams
+- The application experienced downtime caused by load from site visitors
+- The application also had downtime from some changes made by the app developers
+- The level of technical debt was unmanageable
+- Implementing new features was a long, painstaking process
+
+HyreCar had grander ambitions than simply resolving application issues and improving the experience for their users. As a company, they also wanted to speed up the onboarding of new engineers to the application, shorten their app development cycle and be able to experiment with different tools within the application without affecting the main service.
+
+These aims would be a tall order for any company, but HyreCar also only had sixty days (prior to their IPO) in which to make it happen.
+
+** Prisma and GraphQL allowed HyreCar to deliver the changes in the short timeframe.**
+
+## Rebuilding the HyreCar app from scratch with GraphQL and Prisma
+
+![HyreCar Infrastructure Diagram](https://prisma-tutorial-images.ams3.digitaloceanspaces.com/hyrecar-diagram.png)
+
+---
+
+With a pressing IPO deadline looming, HyreCar began to rewrite their entire backend application from scratch.
+
+Considering the combined challenges of the application requirements and the little time available to fulfill them, HyreCar, working with [Novvum](https://www.novvum.io/), decided to use GraphQL as an API technology, and incorporate Prisma to increase developer productivity and remove friction from database workflows.
+
+### Benefits of GraphQL
+
+A number of factors drove their decision to use GraphQL:
+
+- Its self-documenting features which made onboarding new developers with GraphQL far easier
+- The help it offered the front end client with iteration allowed engineers to test out new features quickly
+- Its support for schema stitching meant HyreCar could create a single API that talked to multiple internal and external services easily
+
+Using GraphQL, the new HyreCar application was divided into services that each represented a different aspect of the car-sharing process: the separate services included insurance, users, rentals, etc.
+
+Developer teams could now build out their area of the application without getting in the way of each other. The new modularity of the codebase allowed HyreCar, for example, to grow its insurance capabilities, experimenting with different insurers, rather than having to rely on one insurer, as had been the case in the original application.
+
+At the same time, schema stitching with a GraphQL gateway let developers create mutations that swept across multiple services. A request to book a car, for example, could easily interact with a car and a user service.
+
+### Benefits of Prisma
+
+To make all this possible in time for the IPO, the engineers needed to hook into two specific features of Prisma.
+
+- Prisma simplified the app’s GraphQL resolvers, making database access easier. In this way, the team could avoid having to write plain SQL in those files
+- Prisma allowed HyreCar to use Schema Definition Language (SDL) to define their data model and easily migrate the DB schema from their legacy application to the new robust one
+
+In early conversations about the new application, HyreCar had considered a variety of potential database choices. Prisma allowed the developers to make the database decisions independently from the rest of the conversations, as it offers database agnostic integrations. Additionally Prisma facilitated a migration with no downtime— preventing any issues or data loss, even with all of the data the company had collected since 2014. Most importantly, with Prisma, HyreCar deployed their application to production on time and fully built out.
+
+## Advantages of the Prisma and GraphQL Integration
+
+When the time came, the app was ready and HyreCar IPOed successfully. With the new stack in the place, the updated HyreCar application offered a variety of benefits to both its users and the engineers working on it.
+
+For users:
+
+- Onboarding to the platform was simplified. After the IPO, over 75,000 new users successfully signed up without any of the traditional downtime that had affected the app before
+- The number of daily car rentals increased overall
+- With platform improvements, the number of support tickets decreased
+
+For engineers:
+
+- The application development, scaling, and maintainence process became far faster
+- A CI/CD integration enabled releasing changes to the codebase multiple times per day, whereas, before, a single release could take a couple days to a week.
+- Ramping up new engineers became significantly easier -- both in terms of recruitment (the new application stack was exciting to work on) and getting them immersed in the code
+
+## Conclusion
+
+HyreCar had grown and scaled rapidly after its original launch, taking on technical debt as it worked to keep up with its expanding customer base. After a full review, evaluation, and rewrite of the HyreCar application with GraphQL, HyreCar was able to accelerate its growth and increase the velocity of new features. Prisma’s simplification of the GraphQL resolvers and its data migration support made the entire transition possible in the sixty days prior to IPO.
+
+HyreCar IPOed in June, 2018. With the new stack, HyreCar witnessed a better customer experience in the app, one of the objectives they had sought to achieve. But they also discovered another benefit—increased engineering engagement with the new tools: one of the most important ingredients for moving with speed and confidence towards their future goals!

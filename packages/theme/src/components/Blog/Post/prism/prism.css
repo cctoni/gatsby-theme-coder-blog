@@ -1,0 +1,12 @@
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  background-color: transparent !important;
+}
+
+.language-bash > .token.line:before {
+  content: '$ ';
+  opacity: 0.33;
+}

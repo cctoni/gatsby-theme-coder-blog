@@ -1,0 +1,240 @@
+---
+alias: 'fj3s0ssc1jsx'
+heroImage: /blog/posts/graphqlgen.png
+metaImage: /blog/posts/graphqlgen.png
+authors: [nikolasburk]
+---
+
+import Collapse from 'gatsby-theme-coder-blog/src/components/Blog/Post/Collapse'
+import Youtube from 'gatsby-theme-coder-blog/src/components/Blog/Post/Youtube'
+import Code from 'gatsby-theme-coder-blog/src/components/Blog/Post/Code'
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import { Paragraph, A, InlineCode } from 'gatsby-theme-coder-blog/src/components/Blog/Post/styles'
+
+<PostTitle>Introducing `graphqlgen`: Generate & scaffold type-safe resolvers based on your GraphQL schema</PostTitle>
+
+<Abstract>
+  [`graphqlgen`](https://github.com/prisma/graphqlgen) translates GraphQL schemas into type definitions and scaffolds resolver implementations.
+  It lets you implement type-safe resolvers without the need for writing boilerplate. [Watch demo video](https://www.youtube.com/watch?v=6ZSF60zVFow).
+</Abstract>
+
+Type-safety brings a lot of benefits to developers. Most notably, **compile-time error checking** and **auto-completion** let developers have strong confidence in their code and increase their productivity.
+
+Without type-safety, it is very easy to introduce small typos or make similar avoidable mistakes that cost hours of debugging in the end. How about a little challenge to prove the potential benefits of type-safety?
+
+## How many errors are in this GraphQL server? 👀
+
+Look at this implementation of a GraphQL server and try to find all errors:
+
+![](https://imgur.com/iy9Lj2b.png)
+
+<Collapse title="See the solution 💡">
+
+There are **five** errors in the GraphQL resolver implementation:
+
+1. The query arguments of the `login` resolver are not accessed correctly. The correct way to access them would be via `args.input` (e.g. `args.input.password`) as they're wrapped in an `input` object.
+1. `args.username` is written all-lowercase in the `login` resolver while being written in camelcase notation in the schema.
+1. The `signup` resolver from the `Mutation` type is missing.
+1. The `userName` resolver from the `User` type is missing. Note that the _sample user_ in the blue box represents the shape of the user object that's returned by the `me` resolver. This is why the `id` and `name` resolvers are valid but `username` is not (because of the casing mismatch).
+1. The `profilePictureUrl` resolver violates the non-null constraint defined in the schema.
+
+</Collapse>
+
+How much time did you spend looking for the solution, and how many issues did you actually find? If the resolvers were _entirely type-safe_, you wouldn't need to spend one second on identifying these issues but just have the compiler catch them for you at compile-time.
+
+**We built `graphqlgen` to help you make your resolvers type-safe.**
+
+---
+
+## GraphQL types, models and resolvers
+
+Before diving into a few typical problems that occur when building GraphQL servers, let's briefly review some relevant concepts: GraphQL types, resolvers and models.
+
+![](https://imgur.com/U25F2c0.png)
+
+In the above illustration, we see **GraphQL types** defined in `schema.graphql`.
+
+<Paragraph>
+
+The **resolvers** are implemented on the right in `resolvers.ts`. Note that the _return value_ of the `city` resolver is the _input argument_ (`parent`) for the `City` resolvers.
+
+</Paragraph>
+
+**Models** are defined in `models.ts` and represent the objects that are passed through the resolver chain. They are returned by one resolver and found again as the `parent` argument of subsequent resolvers in the resolver tree (see the areas marked in blue).
+
+## Typical problems when building GraphQL servers
+
+### Inconsistencies between resolvers and the GraphQL schema
+
+<Paragraph>
+
+**Problem**: Keeping the GraphQL schema definition in sync with the corresponding resolvers is a challenging task, and gets more and more complex as a project grows. Problems mostly occur around naming inconsistencies (such as typos or wrong casing) but also when forgetting to implement entire resolver functions.
+
+</Paragraph>
+
+<Paragraph>
+
+**Solution**: Use a **schema-first** approach to develop the GraphQL server. This means the GraphQL schema always is the _source of truth_ and resolvers are implemented exactly based on the schema definition. Using proper tooling that _derives_ the resolver interfaces from the GraphQL schema definition is key when going schema-first.
+
+</Paragraph>
+
+### Unclear mapping between models and resolver return values
+
+**Problem**: The process of resolving a (nested) GraphQL query involves multiple resolver "execution levels" ([learn more](-ac5e2950214e)) where the _return value_ of the previous execution level is the _input_ for the following one. Ensuring that the return value of a resolver matches the expected structure of the `parent` argument is crucial - if that's not the case, the GraphQL server blows up at runtime.
+
+**Solution**: Introducing **type-safe** models that represent the return values and `parent` arguments of your resolvers. With this approach, the compiler ensures that return values of previous execution levels always match the required structure of the corresponding `parent` argument.
+
+### Lots of boilerplate needed for resolvers
+
+**Problem**: Ensuring your resolvers are completely type-safe requires _huge_ amounts of boilerplate code. Keeping that boilerplate in sync with the GraphQL schema is an extremely cumbersome and error-prone process. Expand below for an overview of the boilerplate that's required to make your resolvers type-safe.
+
+<Collapse title="View required boilerplate">
+
+<br />
+
+**Typing resolver arguments and return values**
+
+GraphQL resolvers typically receive four input arguments that all need to be typed:
+
+1. `parent`: The return values of the previous resolver execution level ([learn more](-ac5e2950214e))
+1. `args`: The GraphQL query parameters submitted by the client
+1. `context`: An object that's passed through the GraphQL resolver chain
+1. `info`: Carries the AST of the query ([learn more](-6f26249f613a))
+
+<br />
+
+**Default resolver implementations**
+
+When using plain JavaScript to build your GraphQL server, you can omit _default resolver implementations_. As an example, consider this GraphQL schema:
+
+```graphql
+type Query {
+  users: [User!]!
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+```
+
+With TypeScript, you _must_ implement the `id` and `name` resolvers:
+
+```js
+const resolvers = {
+  Query: {
+    users: () => db.getUsers(),
+  },
+  User: {
+    id: parent => parent.id,
+    name: parent => parent.name,
+  },
+}
+```
+
+When using plain JavaScript, these default resolver implementations can be omitted as they're inferred by `graphql-js`.
+
+</Collapse>
+
+**Solution**: The boilerplate can be **auto-generated**. Generally, the required boilerplate code is derived from the GraphQL schema based on a few simple rules. In order to avoid human mistake when translating the GraphQL schema into corresponding type definitions, this process should be _automated_ and the boilerplate should be auto-generated using **code generation**.
+
+---
+
+## Introducing `graphqlgen` 🎉
+
+All problems outlined above can be solved with proper workflows and tooling! Defining these workflows and building those tools is one of our core goals at Prisma. Today, we are excited to announce [**`graphqlgen`**](https://github.com/prisma/graphqlgen), a tool to help you implement type-safe resolvers. Here's what you can do with it:
+
+- Generate type definitions (for resolver input arguments and return values) and default resolver implementations to ensure type-safe resolvers
+- Scaffold resolver "skeletons" to be implemented by the developer
+
+You can install `graphqlgen` using the following command:
+
+```
+npm install -g graphqlgen
+```
+
+`graphqlgen` is an unopinionated and lightweight CLI that generally stays out of your way but is there when you need it. You can find the docs for it [here](https://oss.prisma.io/graphqlgen/).
+
+## Getting started
+
+There are two ways for getting started with `graphqlgen`:
+
+- Option 1: **Add `graphqlgen` to an existing project** ([read more](https://github.com/prisma/graphqlgen#add-to-existing-project))
+- Option 2: **Start from scratch** (read on to learn more)
+
+If you're adding `graphqlgen` to an existing project, you can use the `graphqlen --init` command to create an initial version of `graphqlgen.yml`.
+
+### Bootstraping a fully-typed GraphQL server
+
+The fastest way to get started with `graphqlgen` is by _bootstrapping_ a fully-typed GraphQL server using an [`npm init`](https://docs.npmjs.com/cli/init)-initializer:
+
+```
+npm init graphqlgen ./my-graphql-server/
+```
+
+This creates the `my-graphql-server` directory with the code for a GraphQL server, including the setup for using `graphqlgen`. The `graphqlgen` CLI requires you to have a `graphqlgen.yml` configuration file present in your project.
+
+### Configuring `graphqlgen.yml`
+
+Here is the (shortened) sample config from your bootstrapped GraphQL server:
+
+```yml
+# The target programming language for the generated code
+language: typescript
+
+# The file path pointing to your GraphQL schema
+schema: ./src/schema.graphql
+
+# Map SDL types from the GraphQL schema to TS models
+models:
+  files:
+    - ./src/types.ts
+
+# Generated typings for resolvers and default resolver implementations
+# DO NOT EDIT THIS FILE
+output: ./src/generated/graphqlgen.ts
+
+# Temporary scaffolded resolvers to copy and paste in your application
+resolver-scaffolding:
+  output: ./src/generated/tmp-resolvers/
+  layout: file-per-type
+```
+
+### Generating code with `graphqlgen`
+
+To invoke the code generation process, run the `graphqlgen` command:
+
+![](https://imgur.com/2KkOJN0.png)
+
+This reads the configuration from `graphqlgen.yml` and stores the generated code in:
+
+- `./src/generated/graphqlgen.ts`: A file containing the typings for the resolver arguments and return values. Also includes the resolver default implementations. This file is not to be edited manually and needs to be regenerated upon every change to the GraphQL schema. ([See example](https://github.com/prisma/graphqlgen/blob/master/packages/graphqlgen-templates/yoga/src/generated/graphqlgen.ts)).
+- `./src/generated/tmp-resolvers/`: A directory containing the resolver "skeletons". The generated files are temporary. The code in the generated files is meant to be copied and pasted into your current GraphQL server implementation. ([See example](https://github.com/prisma/graphqlgen/tree/master/packages/graphqlgen-templates/yoga/src/generated/tmp-resolvers)).
+
+Note: The `graphqlgen` CLI can also be invoked via the `gg` command alias for the gamers among us 🤓
+
+## Common workflows with `graphlgen`
+
+<Paragraph>
+
+`graphqlgen` helps you whenever you need to introduce changes to the GraphQL schema, for example:
+
+</Paragraph>
+
+- Adding a new operation to the GraphQL API (i.e. adding a field to the `Query`, `Mutation` or `Subscription` types).
+- Updating a type in the GraphQL schema, e.g. adding, renaming or removing fields on the type.
+- Removing a field from a model and update the resolvers.
+
+Watch this video to see `graphqlgen` in action (shoutout to [Ben Awad](https://twitter.com/benawad97) for creating it 🙏):
+
+<Youtube videoId="6ZSF60zVFow" />
+
+---
+
+## Future of `graphqlgen`
+
+While `graphqlgen` is ready for production, it has not hit 1.0 yet. There might be breaking changes in the way how the configuration file `graphqlgen.yml` is structured, but the main functionality will remain the same.
+
+`graphlgen` currently supports TypeScript, but support for Flow and Reason is already on its way. We're also planning to introduce a plugin-system for `graphlgen` which will make it possible to have even tighter integrations with other tools, such as Prisma or Apollo.
+
+We're excited to hear what you think of it! Feel free to provide feedback on [GitHub](https://github.com/prisma/graphqlgen) or join the #graphlgen channel in our [Slack](https://slack.prisma.io) for in-depth discussions.

@@ -1,0 +1,143 @@
+diff --git a/node_modules/gatsby-mdx/.DS_Store b/node_modules/gatsby-mdx/.DS_Store
+new file mode 100644
+index 0000000..34781cd
+Binary files /dev/null and b/node_modules/gatsby-mdx/.DS_Store differ
+diff --git a/node_modules/gatsby-mdx/gatsby/extend-node-type.js b/node_modules/gatsby-mdx/gatsby/extend-node-type.js
+index 3775bf3..1a5551f 100644
+--- a/node_modules/gatsby-mdx/gatsby/extend-node-type.js
++++ b/node_modules/gatsby-mdx/gatsby/extend-node-type.js
+@@ -107,6 +107,27 @@ module.exports = (
+     });
+ 
+     return resolve({
++      mdast: {
++        type: GraphQLJSON,
++        async resolve(mdxNode) {
++          const { mdast } = await processMDX({ node: mdxNode });
++          return mdast;
++        },
++      },
++      mdxast: {
++        type: GraphQLJSON,
++        async resolve(mdxNode) {
++          const { mdxast } = await processMDX({ node: mdxNode });
++          return mdxast;
++        },
++      },
++      hast: {
++        type: GraphQLJSON,
++        async resolve(mdxNode) {
++          const { hast } = await processMDX({ node: mdxNode });
++          return hast;
++        },
++      },
+       code: {
+         resolve(mdxNode) {
+           return mdxNode;
+diff --git a/node_modules/gatsby-mdx/gatsby/on-create-node.js b/node_modules/gatsby-mdx/gatsby/on-create-node.js
+index 8ec216c..72e96d0 100644
+--- a/node_modules/gatsby-mdx/gatsby/on-create-node.js
++++ b/node_modules/gatsby-mdx/gatsby/on-create-node.js
+@@ -56,11 +56,8 @@ module.exports = async (
+     content
+   });
+ 
+-  createNode(mdxNode);
+-  createParentChildLink({ parent: node, child: mdxNode });
+-
+   // write scope files into .cache for later consumption
+-  const { scopeImports, scopeIdentifiers } = await genMDX({
++  const { scopeImports, scopeIdentifiers, mdxast } = await genMDX({
+     node: mdxNode,
+     getNode,
+     getNodes,
+@@ -69,6 +66,11 @@ module.exports = async (
+     pathPrefix,
+     options
+   });
++
++  // [HACK]: expose mdxast outside graphql
++  createNode({ ...mdxNode, mdxast });
++  createParentChildLink({ parent: node, child: mdxNode });
++
+   await cacheScope({
+     scopeIdentifiers,
+     scopeImports,
+diff --git a/node_modules/gatsby-mdx/utils/gen-mdx.js b/node_modules/gatsby-mdx/utils/gen-mdx.js
+index 06c0e56..9d7380c 100644
+--- a/node_modules/gatsby-mdx/utils/gen-mdx.js
++++ b/node_modules/gatsby-mdx/utils/gen-mdx.js
+@@ -49,6 +49,7 @@ module.exports = async function genMDX({
+ }) {
+   let results = {
+     mdast: undefined,
++    mdxast: undefined,
+     hast: undefined,
+     html: undefined,
+     scopeImports: [],
+@@ -71,10 +72,27 @@ module.exports = async function genMDX({
+   debug("processing classic frontmatter");
+   const { content } = grayMatter(node.rawBody);
+ 
++
++  const gatsbyRemarkPluginsAsMDPlugins = await getSourcePluginsAsRemarkPlugins({
++    gatsbyRemarkPlugins: options.gatsbyRemarkPlugins,
++    mdxNode: node,
++    //          files,
++    getNode,
++    getNodes,
++    reporter,
++    cache,
++    pathPrefix
++  });
++
++  const transformOptions = {
++    ...options,
++    mdPlugins: options.mdPlugins.concat(gatsbyRemarkPluginsAsMDPlugins)
++  };
++
+   // get mdast by itself
+   // in the future it'd be nice to not do this twice
+   debug("generating AST");
+-  const compiler = mdx.createMdxAstCompiler(options);
++  const compiler = mdx.createMdxAstCompiler(transformOptions);
+   results.mdast = compiler.parse(content);
+ 
+   /* await mutateNode({
+@@ -86,22 +104,13 @@ module.exports = async function genMDX({
+    *   cache
+    * }); */
+ 
+-  const gatsbyRemarkPluginsAsMDPlugins = await getSourcePluginsAsRemarkPlugins({
+-    gatsbyRemarkPlugins: options.gatsbyRemarkPlugins,
+-    mdxNode: node,
+-    //          files,
+-    getNode,
+-    getNodes,
+-    reporter,
+-    cache,
+-    pathPrefix
+-  });
+-
+   debug("running mdx");
+-  let code = await mdx(content, {
+-    ...options,
+-    mdPlugins: options.mdPlugins.concat(gatsbyRemarkPluginsAsMDPlugins)
+-  });
++  let [mdxast, code] = await Promise.all([
++    compiler.run(results.mdast, transformOptions),
++    mdx(content, transformOptions),
++  ]);
++
++  results.mdxast = mdxast;
+ 
+   debug("compiling scope");
+   const instance = new BabelPluginPluckImports();
+@@ -114,6 +123,7 @@ module.exports = async function genMDX({
+         require("@babel/preset-env"),
+         {
+           useBuiltIns: "entry",
++          corejs: 2,
+           modules: "false"
+         }
+       ]

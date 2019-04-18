@@ -1,0 +1,77 @@
+---
+alias: 'thieghu7shoo'
+metaImage: /blog/posts/vscode.png
+heroImage: /blog/posts/vscode.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import { WideImage } from 'gatsby-theme-coder-blog/src/components/Blog/Post/styles'
+
+<PostTitle>Introducing GraphQL for Visual Studio Code</PostTitle>
+
+<Abstract>
+  We're releasing a [plugin](https://marketplace.visualstudio.com/items?itemName=Prisma.vscode-graphql) for VS Code to
+  upgrade your daily GraphQL coding workflows. Features include intelligent autocompletion, jump-to-definition, syntax
+  highlighting, query validation & a lot more.
+</Abstract>
+
+## GraphQL enables outstanding developer experience
+
+At Prisma, we strongly believe that the tools we're using as developers should not only get the job done, but actually be delightful and fun to use. Therefore, leveraging GraphQL to provide a great developer experience is at the core of our mission.
+
+In the past, we've built the [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) (on top of [GraphiQL](https://github.com/graphql/graphiql)) to make it even easier for developers to interact with their GraphQL APIs. The [GraphQL CLI](https://github.com/graphql-cli/graphql-cli) is our "swiss-army knife" for GraphQL projects that provides a variety of features such as code generation, schema handling, bootstrapping boilerplates, linting and thanks to its plugin architecture can also be extended with custom functionality.
+
+> **Note**: Learn more about the variety of open source libraries we've built in our [OSS docs](https://oss.prisma.io/) or directly check out the repositories in our [GitHub account](https://github.com/prismagraphql).
+
+## Top 3 features of the new VS Code plugin
+
+### 1) Intelligent autocompletion
+
+Having _intelligent autocompletion_ in a code editor is a game changer for daily coding workflows. Developers that are working with statically typed languages and IDEs are used to hitting _Ctrl+Space_ and see some suggestions for what to type. In the JavaScript and GraphQL ecosystem, this is much less common.
+
+With the new VS Code plugin, your editor is now able to suggest types, fields and query arguments for your GraphQL code. The suggestions are based on the information provided in your GraphQL schema.
+
+![](https://camo.githubusercontent.com/97dc1080d5e6883c4eec3eaa6b7d0f29802e6b4b/687474703a2f2f672e7265636f726469742e636f2f497379504655484e5a342e676966)
+
+---
+
+### 2) Jump-to-definition
+
+Another extremely helpful IDE feature is _jumping to the original definition_ of a piece of code. For example, when you see a field inside a GraphQL query and want to learn more about its type, you can now _Ctrl+Click_ on that field and VS Code will open the type inside the original SDL schema definition.
+
+![](https://camo.githubusercontent.com/e9b6d06fc4f83f05f966b36de70b067bf2852d21/687474703a2f2f672e7265636f726469742e636f2f5a5074424b32666d6e592e676966)
+
+---
+
+### 3) Validate queries against your GraphQL schema
+
+There are few things more frustrating than debugging an error and finally figuring out it was due to a minor typo in your code. With the _query validation_ feature, your editor will notify you about typos as well as structural and syntactical errors in your GraphQL code.
+
+![](https://camo.githubusercontent.com/0a00a5ba91875b5b7869dd6fc9ed0c1b7bce80c0/687474703a2f2f672e7265636f726469742e636f2f75696c647250505450532e676966)
+
+---
+
+## More awesomeness for your GraphQL workflows
+
+The features we've outlined above are just the tip of the iceberg, the plugin actually provides a lot more functionality:
+
+- Syntax highlighting
+- Validating SDL and outlining syntactical errors
+- Hovering over types & fields shows their description
+- Predefined code snippets (e.g. for creating new SDL types)
+- Validation and autocompletion for Prisma directives
+
+## Try out the new plugin today
+
+Getting started with these new new workflows is as easy as installing the [GraphQL extension](https://marketplace.visualstudio.com/items?itemName=Prisma.vscode-graphql) from the marketplace that's built into VS Code.
+
+<WideImage src="https://imgur.com/8o7cmZu.png" />
+
+## What's next?
+
+With the new VS Code plugin that we're releasing today, we bring various improvements to your daily GraphQL workflows. The plugin is built upon the [`graphql-language-service`](https://github.com/graphql/graphql-language-service) library. A huge thanks to the team at Facebook for providing such a strong foundation for other GraphQL tools 💙 We're also excited to [collaborate](https://github.com/graphql/graphql-language-service/pull/237) with them and work together on driving the GraphQL ecosystem forward.
+
+Supporting VS Code is just the beginning in our efforts to make the lives of developers that are working with GraphQL easier. We're working on bringing these improvements to other editors such as IntelliJ and Atom as well.
+
+For the VS Code plugin, you can soon expect more features like better handling of custom directives, support for [`graphql-import`](https://github.com/prismagraphql/graphql-import) as well as associating your `gql` tags with specific schemas (for multi-schema projects). If you have any feedback or run into problems with the plugin, please [open an issue](https://github.com/prismagraphql/vscode-graphql/issues/new) on GitHub.

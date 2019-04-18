@@ -1,0 +1,74 @@
+diff --git a/node_modules/gatsby/cache-dir/commonjs/loader.js b/node_modules/gatsby/cache-dir/commonjs/loader.js
+index 516981a..038a528 100644
+--- a/node_modules/gatsby/cache-dir/commonjs/loader.js
++++ b/node_modules/gatsby/cache-dir/commonjs/loader.js
+@@ -92,7 +92,6 @@ const fetchResource = resourceName => {
+           const url = createJsonURL(jsonDataPaths[resourceName]);
+           const req = new XMLHttpRequest();
+           req.open(`GET`, url, true);
+-          req.withCredentials = true;
+ 
+           req.onreadystatechange = () => {
+             if (req.readyState == 4) {
+diff --git a/node_modules/gatsby/cache-dir/commonjs/prefetch.js b/node_modules/gatsby/cache-dir/commonjs/prefetch.js
+index f228660..4375731 100644
+--- a/node_modules/gatsby/cache-dir/commonjs/prefetch.js
++++ b/node_modules/gatsby/cache-dir/commonjs/prefetch.js
+@@ -42,7 +42,6 @@ const xhrPrefetchStrategy = function xhrPrefetchStrategy(url) {
+   return new Promise((resolve, reject) => {
+     const req = new XMLHttpRequest();
+     req.open(`GET`, url, true);
+-    req.withCredentials = true;
+ 
+     req.onload = () => {
+       if (req.status === 200) {
+diff --git a/node_modules/gatsby/cache-dir/commonjs/static-entry.js b/node_modules/gatsby/cache-dir/commonjs/static-entry.js
+index 74ebc87..cbabc0f 100644
+--- a/node_modules/gatsby/cache-dir/commonjs/static-entry.js
++++ b/node_modules/gatsby/cache-dir/commonjs/static-entry.js
+@@ -291,7 +291,7 @@ var _default = (pagePath, callback) => {
+       rel: "preload",
+       key: dataPath,
+       href: dataPath,
+-      crossOrigin: "use-credentials"
++      crossOrigin: "anonymous"
+     }));
+   }
+ 
+diff --git a/node_modules/gatsby/cache-dir/loader.js b/node_modules/gatsby/cache-dir/loader.js
+index 5a9dec2..9fd4670 100644
+--- a/node_modules/gatsby/cache-dir/loader.js
++++ b/node_modules/gatsby/cache-dir/loader.js
+@@ -84,7 +84,6 @@ const fetchResource = resourceName => {
+           const url = createJsonURL(jsonDataPaths[resourceName])
+           const req = new XMLHttpRequest()
+           req.open(`GET`, url, true)
+-          req.withCredentials = true
+           req.onreadystatechange = () => {
+             if (req.readyState == 4) {
+               if (req.status === 200) {
+diff --git a/node_modules/gatsby/cache-dir/prefetch.js b/node_modules/gatsby/cache-dir/prefetch.js
+index 1d6322d..8ea47a7 100644
+--- a/node_modules/gatsby/cache-dir/prefetch.js
++++ b/node_modules/gatsby/cache-dir/prefetch.js
+@@ -38,7 +38,6 @@ const xhrPrefetchStrategy = function(url) {
+   return new Promise((resolve, reject) => {
+     const req = new XMLHttpRequest()
+     req.open(`GET`, url, true)
+-    req.withCredentials = true
+ 
+     req.onload = () => {
+       if (req.status === 200) {
+diff --git a/node_modules/gatsby/cache-dir/static-entry.js b/node_modules/gatsby/cache-dir/static-entry.js
+index dfb4e8f..0ce5479 100644
+--- a/node_modules/gatsby/cache-dir/static-entry.js
++++ b/node_modules/gatsby/cache-dir/static-entry.js
+@@ -297,7 +297,7 @@ export default (pagePath, callback) => {
+         rel="preload"
+         key={dataPath}
+         href={dataPath}
+-        crossOrigin="use-credentials"
++        crossOrigin="anonymous"
+       />
+     )
+   }

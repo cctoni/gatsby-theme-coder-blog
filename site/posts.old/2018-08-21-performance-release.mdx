@@ -1,0 +1,97 @@
+---
+alias: 'aeduv0rei0ji'
+heroImage: /blog/posts/performance-release.png
+metaImage: /blog/posts/performance-release.png
+authors: [nikolasburk]
+---
+
+import TweetEmbed from 'react-tweet-embed'
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+
+<PostTitle>Improving Scalability: Up to Four Times More Throughput in Prisma 1.14</PostTitle>
+
+<Abstract>
+  The latest release of Prisma contains many performance improvements making 1.14 the fastest Prisma version ever. Read
+  how we're constantly evaluating and improving the performance of Prisma
+  [here](/blog/performance-engineering-aeduv0rei0jk).
+</Abstract>
+
+## Increased throughput by 400% and speed by 35%
+
+To make sure Prisma is as fast as possible, we are constantly working on improving two core metrics:
+
+- **Throughput**: How many concurrent requests Prisma can handle under load.
+- **Speed**: How much time it takes to execute a single query.
+
+While speed is about the _execution time of a specific query_, throughput is an important metric when it comes to the _scalability_ of a system.
+
+The Prisma 1.14 release brings significant improvements for both metrics. When Prisma is operating under normal load, Prisma 1.14 reduces the time to resolve a single query by 35%. Furthermore, Prisma is now able to execute 4 times as many requests as before while maintaining single digit millisecond execution time.
+
+![](https://imgur.com/lWjY8vW.png)
+
+> All numbers stem from benchmarks performed on a 6 core MacBook Pro with Prisma and a MySQL database limited to use 4 cores and 4GB RAM. The numbers in this article compare Prisma 1.11 against 1.14 and 1.15-beta.
+
+## Measuring the performance of Prisma
+
+In this article we will measure 95th [percentile](https://en.wikipedia.org/wiki/Percentile) latency, which is a good indicator for the actual perceived performance. Using percentiles ensures that the observed values are less prone to being [_skewed_](https://en.wikipedia.org/wiki/Skewness) by outliers while providing a more truthful picture than a normal average.
+
+### 95th percentile
+
+As an example, consider the **95th percentile** for resolving the following query:
+
+```graphql
+query {
+  artists(where: { artistId: 55 }) {
+    albums {
+      tracks {
+        name
+      }
+    }
+  }
+}
+```
+
+The query is nested three levels deep and uses a _unique_ filter condition on the top-level.
+
+Here is the data showing that Prisma versions 1.14 and 1.15-beta sustain **600 requests per second (RPS) while maintaining single digit millisecond request times for 95% of the requests** while 1.11 only sustains 300 RPS:
+
+![](https://imgur.com/Sk0DCho.png)
+
+This means Prisma 1.14 can process twice as many requests compared to 1.11 while maintaining request times below 10 miliseconds, so the throughput for this particular query has _doubled_.
+
+## Concrete performance improvements in 1.14
+
+The achieved performance improvements fall in either of two categories: _Optimizations of the auto-generated SQL queries_ and _code optimizations_ (e.g. saving memory, reducing number of CPU cycles). Those improvements are the result of a number of sprints where we heavily invested into identifying the most expensive parts in our software and optimizing them as much as possible.
+
+<br/>
+<TweetEmbed id='1031949901385617412' options={{ align: 'center' }} />
+<br/>
+
+A common pattern we're seeing in our opimization activities is that it is a lot more time consuming to _identify_ the exact part in the codebase causing a performance penalty than actually _fixing_ it (which often is done with minimal changes to the code). To learn more about this, read our engineering blog post [How We're Constantly Improving the Performance of Prisma](/blog/performance-engineering-aeduv0rei0jk).
+
+If you're curious about some concrete improvements we've made to Prisma, here are a few example PRs that brought notable performance gains through rather small changes to our codebase:
+
+- [Make result set extensions more performant](https://github.com/prisma/prisma/pull/2800)
+- [Only read visible fields from result set](https://github.com/prismagraphql/prisma/pull/2805)
+- [Improve relation filter query](https://github.com/prismagraphql/prisma/pull/2771)
+- [Cache some of the sangria work](https://github.com/prismagraphql/prisma/pull/2814)
+- [Use unsorted map for RootGCValue](https://github.com/prismagraphql/prisma/pull/2804)
+- [Do not use deferreds for single item query](https://github.com/prismagraphql/prisma/pull/2807)
+
+## Continuously ensuring great performance
+
+### Performance is crucial for software to succeed
+
+We see performance as a core feature of Prisma. Therefore, we're investing heavily into an engineering process that enables us to continuously evaluate and improve performance.
+
+Similar to how we're running unit tests to ensure the _stability_ of Prisma, our performance benchmarking suite is ran after every code change to avoid regressions and accidental performance penalties.
+
+### Future performance improvements
+
+Our vision to build a data layer that uses GraphQL as a universal abstraction for all databases is a technically extremely ambitious goal. Some benefits of this are: Easy data access on the application layer (similar to an ORM but without limitations), simple data modeling and migrations, out-of-the-box realtime layer for your database (similar to RethinkDB), cross-database workflows and a lot more.
+
+These benefits provide enormous productivity boosts in modern application development and are impossible to achieve without a dedicated team focused on building such a data layer _full-time_. Working on this project as a company, enables us to heavily invest in **specialized optimization techniques** that product-focused companies could never afford to manually build into their data access layer.
+
+In upcoming releases, we're planning to work on new features specifically designed for better performance. This includes a **smart caching system**, support for **pre-computed views** as well as **support for many more databases** each with their own strengths and query capabilities.
+
+> Read our [engineering blog post](/blog/performance-engineering-aeduv0rei0jk) discussing more details about the tools and practices we're using to ensure great performance of Prisma.

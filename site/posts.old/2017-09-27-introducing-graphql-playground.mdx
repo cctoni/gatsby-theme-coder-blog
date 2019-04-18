@@ -1,0 +1,73 @@
+---
+alias: 'f1e0a018f05d'
+heroImage: /blog/posts/introducing-graphql-playground.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+
+<PostTitle>Introducing GraphQL Playground</PostTitle>
+
+<Abstract>A powerful GraphQL IDE for better development workflows.</Abstract>
+
+GraphQL is a powerful technology that is revolutionising the way how APIs are designed. Besides its expressiveness when fetching data from a server, another key strength of GraphQL is the [tooling ecosystem](https://www.howtographql.com/advanced/3-tooling-and-ecosystem/) around it.
+
+Today, we are excited to introduce a new tool: [**GraphQL Playground**](https://github.com/graphcool/graphql-playground)
+
+### Overview
+
+If you have worked with Prisma before, chances are you have also already seen [an earlier version of the Playground](https://docs-next.graph.cool/reference/basics/console-uh8shohxie#playground), which you can access directly through our web-based Console.
+
+We’re now going one step further and are making the Playground a [standalone application](https://github.com/graphcool/graphql-playground/releases) that you can run locally on your machine.
+
+**Here are some of its core features:**
+
+- Share your Playground on [GraphQL Bin](https://www.graphqlbin.com)
+- Improved API documentation
+- Code generation, e.g. for [Apollo Client](http://dev.apollodata.com/)
+- Access your history of queries and mutations
+- Integrates with [graphql-config](https://github.com/graphcool/graphql-config) and the [graphql-cli](https://github.com/graphcool/graphql-cli)
+
+### How is this different compared to GraphiQL?
+
+The GraphQL Playground _is built on top of_ [GraphiQL](https://github.com/graphql/graphiql) —so at the core you can expect similar functionality. However, the Playground offers a lot more features to enable better development workflows!
+
+One of GraphiQL’s most loved features is the out-of-the-box support for accessing the documentation of a GraphQL API. Yet it can be a pain to navigate back and forth inside the single column of GraphiQL’s UI, especially when you’re working with deeply nested types. The Playground now lets you **navigate your API documentation a lot more smoothly**, using multiple columns, and supporting keyboard-based navigation.
+
+![You can browse your API documentation in multiple columns and using the keyboard.](https://cdn-images-1.medium.com/max/2000/1*tAJQaihZZPfTiQZwksMZyQ.gif)_You can browse your API documentation in multiple columns and using the keyboard._
+
+Another issue, particularly in projects with multiple developers, can be that schema changes are introduced _while_ you’re running a GraphiQL session — this will break your queries. To prevent this, the GraphQL Playground features an** automatic schema reload** that’s triggered on any change to your API.
+
+The Playground also ships with other features like support for **GraphQL subscriptions**, using **multiple tabs **to better organise your queries and mutations, **color themes**,\*\* **or exploring your **query history.\*\*
+
+### Sharing your Playgrounds using GraphQL Bin
+
+To improve collaboration in GraphQL projects, we also added the ability for you to easily share a Playground with your fellow developers on [GraphQL Bin](https://www.graphqlbin.com). (Think about it like _Pastebin_ for GraphQL queries.)
+
+![You can share your GraphQL queries (including endpoints & configuration) by sending other a GraphQL Bin link.](https://cdn-images-1.medium.com/max/2780/1*BRELKo8NpMCGR3Sr4-vSoA.png)_You can share your GraphQL queries (including endpoints & configuration) by sending other a GraphQL Bin link._
+
+This is a great way to enhance debugging workflows across your team or enable other developers to easily play around with your GraphQL API.
+
+Here is an example bin: [https://graphqlbin.com/RVIn](https://graphqlbin.com/RVIn)
+
+### Embed in your GraphQL Server
+
+Another great feature of the GraphQL Playground is that it allows you to embed it into your own applications, either [as a React component](https://github.com/graphcool/graphql-playground#as-react-component) in your frontend app or on the server-side as [middleware](https://github.com/graphcool/graphql-playground#as-express-middleware) for frameworks such as [Express](https://expressjs.com/), [Hapi](https://hapijs.com/) or [Koa](http://koajs.com/). Here is what the setup for Express looks like:
+
+```js
+import express from 'express'
+import { express as playground } from 'graphql-playground/middleware'
+
+const app = express()
+app.use('/playground', playground({ endpointUrl: '/graphql' }))
+app.listen(3000)
+```
+
+### Get Involved — Roadmap & Upcoming Features
+
+The GraphQL Playground is a great addition to the toolbox of every GraphQL developer. To give you a glimpse what’s added next, here are some upcoming features:
+
+- _Context-aware_ (history/query-based) autocompletion
+- An integrated _Graph View_ based on [GraphQL Voyager](https://github.com/APIs-guru/graphql-voyager)
+
+GraphQL Playground is open-source and [available on GitHub](https://github.com/graphcool/graphql-playground/). We’d love to hear your feedback, ideas and contributions to improve it even further. 💚

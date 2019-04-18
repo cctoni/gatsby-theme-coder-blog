@@ -1,0 +1,303 @@
+---
+alias: '80a4aa37cff5'
+heroImage: /blog/posts/reusing-and-composing-graphql-apis-with-graphql-bindings.jpeg
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import { Paragraph } from 'gatsby-theme-coder-blog/src/components/Blog/Post/styles'
+
+<PostTitle>Reusing & Composing GraphQL APIs with GraphQL Bindings</PostTitle>
+
+<Abstract>With GraphQL bindings you can embed existing GraphQL APIs into your GraphQL server.</Abstract>
+
+In previous blog posts, we introduced the idea of [_schema stitching_](https://blog.graph.cool/graphql-schema-stitching-explained-schema-delegation-4c6caf468405) as an elegant way of connecting multiple GraphQL APIs. In this article, we present a new application of schema stitching which makes it particularly easy to reuse, compose and share existing GraphQL APIs: _GraphQL bindings_ 🔗
+
+When using a GraphQL binding, you get access to the functionality of GraphQL API without needing to know any of its details — such as the API endpoint, authentication requirements or any other intricacies to interact with the API as these are all abstracted away by the binding.
+
+> To see what GraphQL bindings look like in practice, you can check out the existing bindings for the [GitHub API](https://github.com/graphcool/graphql-binding-github/) as well as the [Yelp API](https://github.com/DevanB/graphql-binding-yelp) (by [Devan Beitel](https://twitter.com/devanbeitel)).
+
+## What are GraphQL bindings?
+
+GraphQL bindings are _modular building blocks_ that allow to embed existing GraphQL APIs into your own GraphQL server. This makes it extremely easy to access data from various GraphQL sources and integrate these in a single GraphQL API. Think about it as turning (parts of) GraphQL APIs into reusable LEGO building blocks.
+
+> GraphQL bindings take the idea of [schema delegation](https://blog.graph.cool/graphql-schema-stitching-explained-schema-delegation-4c6caf468405) to the next level and make it easy to reuse, embed, compose and share GraphQL APIs.
+
+The core idea of creating a binding for a GraphQL API is to provide a dedicated _object_ which represents the functionality of the API. The object exposes _methods_ which _mirror_ the queries defined in the GraphQL schema.
+
+Instead of constructing queries as _strings_ and sending them over manually to the API (with `fetch` or a GraphQL client like [`graphql-request`](https://github.com/graphcool/graphql-request)), you’ll simply “build” your query using your programming language by invoking these methods.
+
+![When using a typed language, a GraphQL binding maps the GraphQL API types to your programming language.](https://cdn-images-1.medium.com/max/3152/1*ZxCBY3OqmmRQ4yAXxrMAjw.png)_When using a typed language, a GraphQL binding maps the GraphQL API types to your programming language._
+
+The major strength of GraphQL is its _strongly typed schema_. However, when accessing GraphQL APIs by sending queries as strings, the advantages of GraphQL’s strongly typed nature get lost! Bindings are a way to regain this advantage by invoking (typed) functions instead of sending raw queries.
+
+> **Note**: GraphQL bindings work for queries, mutations and subscriptions. While the article only explicitly mentions queries, it actually refers to all three operation types.
+
+### A minimal example of a GraphQL binding
+
+Assume there is an existing GraphQL API with the following schema:
+
+```graphql
+type Query {
+  hello(name: String): String!
+}
+```
+
+Now, when using a GraphQL binding to interact with that schema, you don’t have to construct a query string and send it over to the API yourself. Instead, you can simply invoke the generated query function which represents the `hello` query on the `helloWorldBinding` object:
+
+```js
+helloWorldBinding.query.hello().then(result => console.log(result))
+
+helloWorldBinding.query.hello({ name: 'Nikolas' }).then(result => console.log(result))
+```
+
+The function calls correspond to the following queries being sent to the API:
+
+```graphql
+# helloWorldBinding.query.hello()
+query {
+  hello
+}
+
+# helloWorldBinding.query.hello({ name: 'Nikolas' })
+query {
+  hello(name: "Nikolas")
+}
+```
+
+> **Note:** Each generated binding function not only takes the query arguments as input, but also allows to pass a [selection set](https://medium.com/front-end-developers/graphql-selection-sets-d588f6782e90) for the query as [another argument](https://github.com/graphql-binding/graphql-binding/blob/master/src/types.ts#L15). It can be passed as a string or even as the familiar `info` object from the GraphQL resolver chain. This helps tremendously when embedding another GraphQL API into your server, check out the [Node.js tutorial on How to GraphQL](https://www.howtographql.com/graphql-js/1-getting-started/) to see how that works.
+
+### Benefits of using GraphQL bindings
+
+Using GraphQL bindings unlocks a number of fundamental benefits that were previously not available to GraphQL developers:
+
+- **Pragmatic API & simple abstraction**: Easy to invoke the embedded GraphQL API via dedicated functions; no need to fiddle with authentication and other special access conditions.
+- **Great IDE support**: Autocompletion and other awesome IDE features.
+- **Reusable**: Can be easily shared as reusable packages using NPM (or other package managers).
+- **Compile-time error checking**: Static bindings allow for static analysis which will catch type errors for you while developing your app.
+- **Language agnostic**: Works with any (typed) programming language.
+
+![Thanks to static bindings, GraphQL developers can now benefit from autocompletion when working with GraphQL APIs (similar to GraphQL Playgrounds / GraphiQL)](https://cdn-images-1.medium.com/max/2000/1*HL-fBLNk_GHZLUAJ3va9ZQ.gif)_Thanks to static bindings, GraphQL developers can now benefit from autocompletion when working with GraphQL APIs (similar to GraphQL Playgrounds / GraphiQL)_
+
+### Generating GraphQL bindings from REST APIs
+
+GraphQL was invented to solve the problem of integrating existing APIs by abstracting away the complexity of gathering data from multiple endpoints behind a single, coherent API. While GraphQL has proven to also work in various different settings, wrapping REST APIs remains an extremely compelling use case for GraphQL!
+
+With GraphQL bindings, it becomes possible to _automatically_ generate a GraphQL wrapper for a REST API, based on some sort of structured API documentation (such as [Swagger docs](https://swagger.io/)). This might be one of the most exciting application scenarios of GraphQL bindings and we are looking forward to explore all the awesome possibilities together with the community! [Get involved!](https://github.com/graphcool/graphql-binding/issues/28) 🙌
+
+## Build and share your own GraphQL bindings
+
+If you want to build and share a binding for an existing GraphQL API, the easiest way to do so is based on the [`graphql-binding`](https://github.com/graphql-binding/graphql-binding) package.
+
+The core primitive provided by that package is a [Binding](https://github.com/graphcool/graphql-binding/blob/master/src/Binding.ts) class which receives the [GraphQL schema](https://blog.graph.cool/graphql-server-basics-the-schema-ac5e2950214e) of the target API as a constructor argument. This allows for it to generate dedicated functions which mirror the root fields of the schema and provide _direct_ access to the operations exposed by the GraphQL API.
+
+Consider the example of the following GraphQL API. Note that this is a contrived example that only serves to explain _how_ to use the `graphql-binding` package — in a real-world scenario, the `schema` would not originate in the same application where the `binding` is created. In fact, most of the time you’ll be dealing with [remote schemas](https://blog.graph.cool/how-do-graphql-remote-schemas-work-7118237c89d7).
+
+```js
+const { makeExecutableSchema } = require('graphql-tools')
+const { Binding } = require('graphql-binding')
+
+const users = [
+  {
+    name: 'Alice',
+  },
+  {
+    name: 'Bob',
+  },
+]
+
+const typeDefs = `
+  type Query {
+    findUser(name: String!): User
+  }
+  type User {
+    name: String!
+  }
+`
+
+const resolvers = {
+  Query: {
+    findUser: (parent, { name }) => users.find(u => u.name === name),
+  },
+}
+
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+```
+
+You can now create your `Binding` instance as follows:
+
+```js
+const findUserBinding = new Binding({
+  schema,
+})
+```
+
+Finally, you can use the binding object findUserBinding to access the schema’s findUser query:
+
+```js
+findUserBinding.query.findUser({ name: 'Bob' })
+```
+
+## Static type generation for GraphQL bindings
+
+GraphQL bindings allow for better IDE support code and thus greatly improve developer experience.
+
+> Auto-completion and static type checking are game changers for the developer experience when building GraphQL servers.
+
+As mentioned above, one of the most powerful properties of GraphQL in general is its strong type system. Arguably, strongly typed programming languages are the best candidates to take advantage of this property by translating GraphQL types into their own types, providing developers with confidence and safety with regards to the API operations they’re able perform (and the payloads they can expect from the API).
+
+With a bit of additional tooling, the idea of (static) GraphQL bindings make this benefit almost trivial to achieve for any strongly typed language.
+
+### Generating TypeScript types with the GraphQL CLI
+
+> **UPDATE, May 2018**: Since [version 2.0 of GraphQL Bindings](https://www.prisma.io/blog/graphql-binding-2-0-improved-api-schema-transforms-automatic-codegen-5934cd039db1/), code generation works slightly differently. Learn more [here](https://oss.prisma.io/content/graphql-binding/03-generator-clis).
+
+The [GraphQL CLI](https://github.com/graphql-cli/graphql-cli) includes a [`graphql prepare`](https://github.com/supergraphql/graphql-cli-prepare) command allowing to easily add static type generation as a build step to your project.
+
+The first step to add static type generation to your project is to create a .graphqlconfig (based on the standard [`graphql-config`](https://github.com/prismagraphql/graphql-config) format), similar to this:
+
+```yml
+projects:
+  helloworld:
+    schemaPath: schema.graphql
+    extensions:
+      prepare-binding:
+        output: helloworld.ts
+        generator: binding-ts
+```
+
+This provides the following pieces of information to the graphql-cli-prepare plugin:
+
+- `schemaPath`: Points to your GraphQL schema (in the example above, we’d have to extract the schema defined in the typeDefs variable into its own file to make this work).
+- `extensions.prepare-binding.output`: Where to place the generated bindings.
+- `extensions.prepare-binding.generator`: Which [_generator_](https://github.com/supergraphql/graphql-cli-prepare#available-generators) to use, (right now, the following generators exist: `binding-js` & `binding-ts` can be used for _any_ GraphQL API; `prisma-js` & `prisma-ts` provide extra convenience for Prisma services).
+
+Assumed your schema is located in `schema.graphql`, you can now invoke the `graphql prepare` command which will generate the TypeScript bindings and place them in `generated/helloworld.ts`:
+
+```ts
+import { Binding as BaseBinding, BindingOptions } from 'graphql-binding'
+import { GraphQLResolveInfo } from 'graphql'
+
+export interface User {
+  name: String
+}
+
+/*
+The `Boolean` scalar type represents `true` or `false`.
+*/
+export type Boolean = boolean
+
+/*
+The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
+*/
+export type String = string
+
+export interface Schema {
+  query: Query
+}
+
+export type Query = {
+  findUser: (
+    args: { name: String },
+    context: { [key: string]: any },
+    info?: GraphQLResolveInfo | string,
+  ) => Promise<User | null>
+}
+
+export class Binding extends BaseBinding {
+  constructor({ schema, fragmentReplacements }: BindingOptions) {
+    super({ schema, fragmentReplacements })
+  }
+
+  query: Query = {
+    findUser: (args, context, info): Promise<User | null> => super.delegate('query', 'findUser', args, context, info),
+  }
+}
+```
+
+Note that `helloworld.ts` should never be edited manually, but will be updated automatically every time you make changes to your schema.
+
+## A new kind of ORM: GraphQL database bindings
+
+Another really exciting application of GraphQL bindings is for generating a mapping from your database layer to the application layer. In that context, it effectively takes the role of an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) in your server stack.
+
+For example, with [Prisma](https://www.prisma.io) as your ["GraphQL ORM"](https://github.com/prismagraphql/prisma#is-prisma-an-orm) layer, you can use the [`prisma-binding`](http://github.com/graphcool/prisma-binding) package directly or generate a static binding for your TypeScript code using the mentioned [`prisma-ts`](https://github.com/supergraphql/graphql-cli-prepare#available-generators) generator.
+
+> **Note:** If you’re bootstrapping your GraphQL server with `graphql create` and choose one of the [TypeScript boilerplates](https://github.com/graphql-boilerplates/typescript-graphql-server), `.graphqlconfig` will already be configured for you and static bindings are automatically generated.
+
+Here is how the `prisma-binding` package works. Assume you’re starting out with the following simple data model for your Prisma service:
+
+```graphql
+type User {
+  id: ID! @unique
+  name: String!
+}
+```
+
+After deploying the service, the following [_Prisma database schema_](<https://www.prismagraphql.com/docs/reference/service-configuration/data-modelling-(sdl)-eiroozae8u#prisma-database-schema-vs-data-model>) will be generated for you. This schema defines CRUD operations for the `User` type (we’re actually showing you a simplified version of the generated schema — if you’re curious, you can find the full version [here](https://gist.github.com/gc-codesnippets/f302c104f2806f9e13f41d909e07d82d)):
+
+```graphql
+type Query {
+  users(
+    where: UserWhereInput
+    orderBy: UserOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [User]!
+  user(where: UserWhereUniqueInput!): User
+}
+
+type Mutation {
+  createUser(data: UserCreateInput!): User!
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  deleteUser(where: UserWhereUniqueInput!): User
+}
+
+type Subscription {
+  user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+}
+```
+
+You can now instantiate the [`Prisma`](https://github.com/graphcool/prisma-binding/blob/master/src/Prisma.ts) class from `prisma-binding` with the information about the deployed service:
+
+```js
+const { Prisma } = require('prisma-binding')
+
+const prisma = new Prisma({
+  schemaPath: 'generated/prisma.graphql',
+  endpoint: 'hhttp://localhost:60000/helloworld/dev',
+  secret: 'my-super-secret-secret', // defined in prisma.yml
+})
+```
+
+The prisma instance now acts as a proxy for the queries, mutations and subscriptions defined in the Prisma schema above. Here are some examples:
+
+```js
+// Retrieve `name` of a specific user
+prisma.query.user({ where { id: 'abc' } }, '{ name }')
+
+// Retrieve all fields of all users
+prisma.query.users()
+
+// Create new user called `Sarah` and retrieve the `id`
+prisma.mutation.createUser({ data: { name: 'Sarah' } }, '{ id }')
+
+// Update name of a specific user and retrieve the `id`
+prisma.mutation.updateUser({ where: { id: 'abc' }, data: { name: 'Sarah' } }, '{ id }')
+
+// Delete a specific user
+prisma.mutation.deleteUser({ where: { id: 'abc' } })
+```
+
+## A glimpse into the future of GraphQL development
+
+GraphQL bindings are a fantastic tool to easily reuse, share and compose existing GraphQL APIs and a huge step forward in the GraphQL ecosystem as a whole.
+
+We want to give a big shoutout to everybody in the GraphQL community who helped creating the tooling and developing the ideas around GraphQL bindings. Special thanks to [Kim Brandwijk](https://github.com/kbrandwijk) for his relentless work on all the [great tools](https://github.com/supergraphql/) which are the foundation for GraphQL bindings 💚
+
+If you’re curious about similar approaches for schema stitching, you should definitely check out [GrAMPS](https://gramps.js.org/) by [Jason Lengstorf](http://twitter.com/jlengstorf). To learn more about this project, you can also tune into the [GraphQL Radio episode with Jason](https://www.youtube.com/watch?v=79vwYEJDs04) (also available on [iTunes](https://itunes.apple.com/us/podcast/graphql-radio/id1227875536?mt=2)). GrAMPS and GraphQL bindings even work together, you can check out a working example of such a scenario [here](https://github.com/supergraphql/gramps-graphql-server).
+
+> **Note:** The GraphQL ecosystem is heavily focused on JavaScript at the moment — APIs for schema delegation and GraphQL bindings only exist in JS libraries. We want to encourage other language communities (Scala, Elixir, Go, Python, …) to work on these ideas and thus help make the benefits of GraphQL available to a wider audience of developers. **If you’d like to get involved with GraphQL bindings, join the discussions in [#graphql-bindings](https://graphcool.slack.com/messages/graphql-bindings) channel in our Slack.**

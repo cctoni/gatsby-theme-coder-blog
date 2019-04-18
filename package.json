@@ -3,7 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "yarn workspace site develop"
+    "dev": "yarn workspace site develop",
+    "clean": "yarn workspace site clean",
+    "postinstall": "patch-package"
+  },
+  "devDependencies": {
+    "patch-package": "^6.0.7",
+    "postinstall-postinstall": "^2.0.0"
   },
   "workspaces": [
     "site",

@@ -1,54 +1,48 @@
 module.exports = {
   siteMetadata: {
-    title: "How to GraphQL",
-    description: "GraphQL tutorials",
-    keywords: "GraphQL, Tutorials"
+    title: "Prisma",
+    description: "Prisma",
+    author: "Prisma"
+  },
+  mapping: {
+    "Mdx.frontmatter.authors": "AuthorData.username",
+    "Mdx.frontmatter.parts": "Mdx.frontmatter.alias"
   },
   plugins: [
-    "gatsby-plugin-react-helmet",
-    "gatsby-transformer-sharp",
-    "gatsby-plugin-sharp",
+    {
+      resolve: "gatsby-source-filesystem",
+      options: { name: "posts", path: `./posts` }
+    },
+    {
+      resolve: "gatsby-source-filesystem",
+      options: { name: "series", path: `./series` }
+    },
+    {
+      resolve: "gatsby-plugin-google-analytics",
+      options: {
+        trackingId: "UA-74131346-14",
+        head: false,
+        anonymize: true,
+        respectDNT: true
+      }
+    },
+    {
+      resolve: "gatsby-plugin-intercom-spa",
+      options: {
+        app_id: "cr2825gz",
+        include_in_development: true
+      }
+    },
     "gatsby-plugin-typescript",
-    "gatsby-transformer-remark",
-    "gatsby-image",
+    "gatsby-mdx",
+    "gatsby-plugin-nprogress",
+    "gatsby-plugin-react-helmet",
     "gatsby-plugin-styled-components",
-    "gatsby-plugin-offline",
-    {
-      resolve: `gatsby-mdx`,
-      options: {
-        decks: [],
-        defaultLayouts: {
-          default: require.resolve("./src/components/postLayout.tsx")
-        },
-        extensions: [".mdx", ".md"],
-        gatsbyRemarkPlugins: [
-          {
-            resolve: "gatsby-remark-prismjs",
-            options: {
-              classPrefix: "language-",
-              inlineCodeMarker: {
-                tsx: "tsx"
-              },
-              aliases: {}
-            }
-          }
-        ]
-      }
-    },
-    {
-      resolve: "gatsby-source-filesystem",
-      options: {
-        name: "content",
-        path: `${__dirname}/content`,
-        ignore: ["**/.tsx*"]
-      }
-    },
-    {
-      resolve: "gatsby-source-filesystem",
-      options: {
-        name: "images",
-        path: `${__dirname}/images`
-      }
-    }
+    "gatsby-plugin-polished",
+    "gatsby-plugin-remove-trailing-slashes"
+    // 'gatsby-plugin-netlify',
   ]
 };
+
+if (process.env.DEPLOY_URL)
+  module.exports.assetPrefix = `${process.env.DEPLOY_URL}/blog-assets`;

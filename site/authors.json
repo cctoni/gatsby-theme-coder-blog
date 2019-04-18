@@ -1,0 +1,55 @@
+{
+  "nikolasburk": {
+    "name": "Nikolas Burk",
+    "avatar": "https://github.com/nikolasburk.png",
+    "github": "nikolasburk",
+    "twitter": "nikolasburk",
+    "website": "http://nikolasburk.com/"
+  },
+  "schickling": {
+    "name": "Johannes Schickling",
+    "avatar": "https://github.com/schickling.png",
+    "github": "schickling",
+    "twitter": "schickling",
+    "website": "http://schickling.me/"
+  },
+  "sorenbs": {
+    "name": "Søren Bramer Schmidt",
+    "avatar": "https://github.com/sorenbs.png",
+    "github": "sorenbs",
+    "twitter": "sorenbs"
+  },
+  "timsuchanek": {
+    "name": "Tim Suchanek",
+    "avatar": "https://github.com/timsuchanek.png",
+    "github": "timsuchanek",
+    "twitter": "timsuchanek"
+  },
+  "etelsv": {
+    "name": "Etel Sverdlov",
+    "avatar": "https://github.com/etelsv.png",
+    "github": "etelsv",
+    "twitter": "etelsverdlov"
+  },
+  "tgriesser": {
+    "name": "Tim Griesser",
+    "avatar": "https://github.com/tgriesser.png",
+    "guest": true,
+    "twitter": "tgriesser",
+    "github": "tgriesser"
+  },
+  "mfix22": {
+    "name": "Mike Fix",
+    "avatar": "https://github.com/mfix22.png",
+    "guest": true,
+    "github": "mfix22",
+    "twitter": "fixitup2",
+    "website": "https://mfix22.github.io/"
+  },
+  "lawjolla": {
+    "name": "Dennis Walsh",
+    "avatar": "https://github.com/lawjolla.png",
+    "github": "lawjolla",
+    "twitter": "lawjolla"
+  }
+}
