@@ -1,0 +1,139 @@
+---
+alias: 'aad74ba479cb'
+heroImage: /blog/posts/prisma-supports-postgres.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+
+<PostTitle>Prisma now supports Postgres</PostTitle>
+
+<Abstract>
+
+Today, we’re releasing Prisma 1.8 which introduces support for PostgreSQL. This has been one of Prisma's
+[most requested features](https://github.com/prismagraphql/prisma/issues/1641) so far.
+
+Simply run npm install -g prisma to install the latest version. You can find the
+[full changelog here](https://github.com/prismagraphql/prisma/releases/tag/1.8.0).
+
+</Abstract>
+
+## Our ambitious goal: Support for all major databases
+
+The most common question we’re getting from developers and companies is: **When will Prisma add support for database XYZ?**
+
+Some applications use Postgres as their primary source of truth and sync data to Elasticsearch for advanced text search. Other applications are based on a scale-out database like Cassandra or DynamoDB for primary data and maintain projections into a SQL or Mongo database in order to retrieve all data for a particular view in a performant, single query.
+
+In today’s infrastructure ecosystem it’s the default to pick specialized databases and combine their capabilities to maximize performance and flexibility. Embracing this new way of organizing data, the Prisma’s goal is to unify the data layer for modern applications through the simplicity and power of GraphQL.
+
+To fulfil this promise, Prisma has to support a multitude of different databases. This is the reason why our highest priority for 2018 is to add support for many more databases starting with [Postgres](https://github.com/prismagraphql/prisma/issues/1641), [MongoDB](https://github.com/prismagraphql/prisma/issues/1643) and [Elasticsearch](https://github.com/prismagraphql/prisma/issues/1665) which are the most frequently requested databases.
+
+![](https://cdn-images-1.medium.com/max/3080/1*3jWNPvmjGcl9hai_Hj9ktQ.png)
+
+Adding support for Postgres is especially interesting since more and more newer databases (such as [CockroachDB](https://github.com/cockroachdb/cockroach) and [TimescaleDB](https://github.com/timescale/timescaledb)) are adopting the PostgreSQL syntax and are therefore compatible with Prisma out of the box.
+
+So let’s see how you can use Prisma together with Postgres today:
+
+## Getting started with Prisma and Postgres
+
+Once you’ve installed the Prisma CLI via npm install -g prisma on your machine, the easiest way to get started is by running prisma init:
+
+![](https://cdn-images-1.medium.com/max/2744/1*8pzOn6PlEK4i9HRgf1NzFg.png)
+
+Here you can choose to set up a new Prisma server (using Docker) or use an already existing Prisma server. When setting up a new server Prisma allows you to connect to an existing database or create a new one running in Docker.
+
+![](https://cdn-images-1.medium.com/max/2744/1*hC_OiN9nDSFSp5GD5Lsidg.png)
+
+In this case we’ve chosen the “Create new database” option and selected the “Postgres” database option. The Prisma CLI creates all necessary files for you to get started including the docker-compose.yml which looks like this:
+
+```yml
+version: '3'
+services:
+  prisma:
+    image: prismagraphql/prisma
+    restart: always
+    ports:
+      - '4466:4466'
+    environment:
+      PRISMA_CONFIG: |
+        port: 4466
+        databases:
+          default:
+            connector: postgres
+            host: postgres
+            port: 5432
+            user: prisma
+            password: prisma
+            migrations: true
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+    volumes:
+      - postgres:/var/lib/postgresql/data
+volumes: postgres:
+```
+
+Now we can simply run `docker-compose up -d` to start both the Prisma server and the Postgres database (this requires Docker to be installed locally).
+
+Once both containers are running, you can deploy the Prisma service via prisma deploy. This will migrate the underlying Postgres database based on your datamodel specified in the datamodel.graphql file and makes your Prisma GraphQL API available under http://localhost:4466.
+
+![](https://cdn-images-1.medium.com/max/2744/1*dw0Zf3Hhw_pcnrqZ6JwznA.png)
+
+You’re now ready to start using your GraphQL API. Simply explore the API capabilities via the [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) or build your own GraphQL server using Prisma as a GraphQL ORM layer based on prisma-binding. [Read more.](https://www.prisma.io/docs/tutorials/prisma-basics/getting-started-ouzia3ahqu)
+
+## Connect to an existing database (experimental)
+
+Besides using Prisma together with a new database, Prisma 1.8 introduces experimental support for connecting to an existing Postgres database. This let’s you **turn your existing database into a powerful GraphQL API**.
+
+The usage flow is very similar to using a new database. By simply configuring your database credentials while running prisma init, Prisma will [introspect](https://www.prisma.io/docs/1.8/reference/service-configuration/data-model/introspection-aeb6diethe) your existing database and create a matching datamodel.
+
+![](https://cdn-images-1.medium.com/max/2744/1*CH3QRfRyfo1s41D2Nj_8fA.png)
+
+The created datamodel is a mapping to your existing database and serves as the foundation for the auto-generated GraphQL CRUD API. You can use Postgres-specific directives (e.g. @pgTable or @pgRelation) to control how your Postgres database is mapped into a GraphQL API.
+
+Here is how the datamodel could look like after the initial introspection:
+
+```graphql
+type User @pgTable(name: "users") {
+  id: ID! @unique
+  isAdmin: Boolean! @default(value: false)
+  posts: [Post!]!
+  comments: [Comment!]!
+}
+
+type Post @pgTable(name: "posts") {
+  id: ID! @unique
+  title: String!
+  text: String!
+  author: User! @pgRelation(column: "user_id")!
+  comments: [Comment!]!
+}
+
+type Comment @pgTable(name: "comments") {
+  id: ID! @unique
+  text: String!
+  author: User! @pgRelation(column: "user_id")!
+  post: Post! @pgRelation(column: "post_id")
+}
+```
+
+Making Prisma work out of the box for existing databases in every scenario is a hard technical problem requiring a lot of work (and tests), so there are still [some known limitations and bugs](https://github.com/prismagraphql/prisma/issues/2377).
+
+We’re expecting to release a stable version of this feature in one of the next upcoming versions. If you’re running into any edge cases or bugs while testing this feature, please [open an issue on Github](https://github.com/prismagraphql/prisma/issues/new).
+
+## What’s next?
+
+This release marks an important milestone in the history of Prisma adding support for Postgres — one of the most popular open-source databases used by millions of applications.
+
+However, this is also just the beginning of bringing the power of the Postgres ecosystem to the world of GraphQL. We are already looking into ways how to add support for [full-text search](https://github.com/prismagraphql/prisma/issues/1183), [Postgis](https://github.com/prismagraphql/prisma/issues/1760) and other Postgres extensions.
+
+Besides Postgres we’re already working on other database connectors. Keep an eye out for the [upcoming MongoDB connector](https://github.com/prismagraphql/prisma/issues/1643). 👀
+
+---
+
+**Thank you, to all beta testers 🙏**
+
+A special thanks goes out to all of our amazing beta testers who have helped us over the last few weeks to find bugs in the Postgres connector. We’re looking forward to your findings regarding the support for existing databases.

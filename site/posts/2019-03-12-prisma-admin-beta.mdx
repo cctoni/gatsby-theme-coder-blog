@@ -1,0 +1,149 @@
+---
+alias: 'pai5lah43soe'
+spectrum: 7ecf9013-bb40-4013-8ba4-91c8c1594880
+heroImage: /blog/posts/admin-beta.png
+metaImage: /blog/posts/admin-beta.png
+authors: [etelsv]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import { InlineCode } from 'gatsby-theme-coder-blog/src/components/Blog/Post/styles'
+
+<PostTitle>Prisma Admin (Beta): A Modern UI to Manage Your Data</PostTitle>
+
+<Abstract>
+  Prisma Admin makes managing data easier, providing developers and teams with a straightforward way to view and edit
+  their data.
+</Abstract>
+
+import Code from 'gatsby-theme-coder-blog/src/components/Blog/Post/Code'
+import Collapse from 'gatsby-theme-coder-blog/src/components/Blog/Post/Collapse'
+import Video from 'gatsby-theme-coder-blog/src/components/Blog/Post/Video'
+import AdminCta from 'gatsby-theme-coder-blog/src/components/Blog/Post/AdminCta'
+
+We are very excited to announce the beta release of Prisma Admin, a database
+GUI that offers a simple way for you to interact with your data.
+
+Check out the [**3-min demo video**](https://www.youtube.com/watch?v=2NYxVJX0Puk) or [**try it out**](https://www.prisma.io/generate-demo-project) yourself. We're already working on the next major features of Prisma Admin, [let us know about your feedback and ideas](https://github.com/prisma/prisma-admin-feedback).
+
+---
+
+## Why Prisma Admin?
+
+Prisma currently exposes the GraphQL Playground to let developers interact with their database via GraphQL queries. This works well in certain cases but can become tedious when often editing data, where a table-based UI is more convenient and faster.
+
+While there are already many database GUIs, most of them are either very dated or limited to a specific database. Most modern applications make use of a combination of multiple different databases forcing developers to use a myriad of disparate tools.
+
+Prisma Admin provides a unified and modern UI on top of any kind of database to speed up your development process. (Think: VS Code - but for databases.)
+
+---
+
+## How to get access to Prisma Admin
+
+Prisma Admin is accessible at the Admin URL of your Prisma service, which you can find in the CLI output after running `prisma deploy`. Prisma Admin will also replace the Data Browser in Prisma Cloud.
+
+You can access Prisma Admin by appending `/_admin` to the endpoint of your
+Prisma service. Depending on where your Prisma server is hosted, the URL looks different, e.g.:
+
+- Local: <InlineCode>http://localhost:4466/<strong>\_admin</strong></InlineCode>
+- Demo server: <InlineCode>https://eu1.prisma.sh/nikolas/helloworld/dev/<strong>\_admin</strong></InlineCode>
+- Custom: <InlineCode>https://myserver.com/helloworld/dev/<strong>\_admin</strong></InlineCode>
+
+You can also open Prisma Admin directly in your browser by typing `prisma admin`.
+
+> Prisma Admin supports all of the databases that Prisma integrates with (e.g. MySQL, PostgreSQL, MongoDB). It is available in Prisma [v1.29-beta](https://www.prisma.io/docs/releases-and-maintenance/releases-and-beta-access/installing-the-beta-b5op/) and above.
+
+---
+
+## A tour of Prisma Admin
+
+Let's dive into the features of Prisma Admin. You can try out Admin with a premade demo based on [this datamodel](https://gist.github.com/nikolasburk/db3c8e052c8e640f51f60c1ac16d92d8):
+
+<br />
+<br />
+
+<AdminCta />
+
+<br />
+<br />
+
+The following sections highlight Admin's most important features:
+
+1. Explore: A convenient & efficient way to view your data
+1. Edit: Change your data quickly & safely
+1. Relations: Easily add, traverse & edit connected data
+1. Advanced queries: Filter, sort and paginate.
+1. Customize: Bring your own components
+
+---
+
+### Explore: A convenient & efficient way to view your data
+
+Prisma Admin shows you all of the data for each model within the _Result area_. In the demo, you can switch between the `Post`, `User`, and `Comment` models in the _Sidebar_.
+
+Selecting a record from the results opens it in the _Detail area_ where you can further navigate to related records.
+
+<Video src="https://i.imgur.com/LreM88f.mp4" />
+
+### Edit: Change your data quickly & safely
+
+Prisma Admin lets you add, edit, and delete data easily throughout the interface.
+
+<Video src="https://i.imgur.com/UCEaVJq.mp4" />
+
+To ensure that unwanted data changes do not affect the database, Admin has a two step saving process:
+
+1. When you first edit your data, Prisma Admin only applies changes locally.
+2. Once you're happy with the changes, you can confirm and save them to the database.
+
+### Relations: Easily add, traverse & edit connected data
+
+Admin also understands relations in your datamodel and makes it easy for you to...
+
+- Add relational data to a row by including relation fields in the GraphQL query
+- Quickly view all relations of a database record and traverse them in the _Detail area_
+- Inline edit the relations of a database record (without copying any IDs)
+
+<Video src="https://i.imgur.com/9sw3VPX.mp4" />
+
+### Querying: Select fields, filter, sort and paginate your data
+
+It's easy to query for exactly the data you need with support for advanced features like filtering, sorting and pagination.
+
+<Video src="https://i.imgur.com/OMqVPj7.mp4" />
+
+### Customize: Bring your own components (experimental)
+
+By default, Prisma Admin comes with two _Detail area_ components:
+
+- **Form** component: This is the default view for the _Detail area_. Like the _Result area_, you can edit any of the data and save it by confirming your changes.
+- **JSON** component: View your records as JSON by clicking on the eye icon at the top right of the _Detail area_.
+
+For advanced scenarios, you can also bring your own components (e.g a React or Vue app) in order to implement your funtionality and modify the output of the _Detail area_.
+
+Examples of this include rendering visual charts & diagrams, adding buttons to trigger business logic or embed related data from other data sources. [Check out the docs](https://www.prisma.io/docs/prisma-admin/custom-components-h4jp/) to learn more.
+
+![](https://i.imgur.com/tJoVqL0.png)
+
+---
+
+## What’s next?
+
+This beta release of the Prisma Admin only marks the beginning. We're already working on a couple of new major features:
+
+- **Datamodel editor**: A visual representation of your datamodel
+- **Desktop version**: A standalone desktop Prisma Admin app
+- **Filter UI for the query area**: A dedicated UI for data filtering and sorting
+- **Query analytics**: A tool to help identifying performance bottlenecks
+- **Tabs**: The ability to have multiple queries open at the same time
+
+But, most importantly, we want [to hear](https://github.com/prisma/prisma-admin-feedback) from you!
+
+What features do you want to see? What are your database workflows, and how can Admin help simplify them further?
+
+Now is the right time to provide feedback and share your ideas with us! Please [join the conversation on Spectrum](https://spectrum.chat/prisma/general/prisma-admin-beta-a-modern-ui-to-manage-your-data~7ecf9013-bb40-4013-8ba4-91c8c1594880) or [open an issue on GitHub](https://github.com/prisma/prisma-admin-feedback/issues) with your thoughts.
+
+<br/>
+<br/>
+
+<AdminCta />

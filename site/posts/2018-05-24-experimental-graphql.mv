@@ -1,0 +1,174 @@
+---
+alias: '106b07424435'
+metaImage: /blog/posts/experimental-graphql.png
+heroImage: /blog/posts/experimental-graphql.png
+authors: [mfix22]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+
+<PostTitle>Experimental GraphQL - How Can We Stretch GraphQL to Its Limits, and beyond?</PostTitle>
+
+<Abstract>
+  Are queries and mutations appropriate primitives for expressing the execution semantics of GraphQL operations? In this
+  post, our guest author [Mike Fix](https://twitter.com/fixitup2) offers his opinion on this question.
+</Abstract>
+
+> If you're interested in writing an article for our blog as well, [drop us an email](mailto:burk@prisma.io).
+
+## Are queries and mutations needed in GraphQL?
+
+The best part about GraphQL is that you can learn the entire spec by just hopping on a [GraphQL Playground](https://github.com/graphcool/graphql-playground) and exploring. This makes it tremendously easy to get started. In fact, this is how I learned everything I know about GraphQL, besides one thing ...
+
+At last fall's [GraphQL Summit](https://summit.graphql.com/), one of the spec-writers, [Lee Byron](https://twitter.com/leeb), hinted at the fact that when they introduced `mutation`s to the spec, they later regretted not calling it 'actions'. This made me pause: "Why aren't all GraphQL documents just prefixed with 'action'," I asked myself, because a `query` is simply an action. At this point I realized I had yet to figure out the difference between `query` and `mutation`, one of the few things you can't learn from exploring a [GraphQL Playground](https://github.com/prismagraphql/graphql-playground).
+
+## Queries and mutations have different execution semantics
+
+It wasn't until I ran across [this paragraph](https://graphql.org/learn/queries/#multiple-fields-in-mutations) in the `graphql-js` docs that I figured out the difference:
+
+- the root fields of a mutation execute _in series_
+- the root fields of a query execute _in parallel_
+
+And this was the point Lee was making about actions instead of mutations - mutations are not just to signify that data has been mutated, but also that side-effects will occur, and therefore must wait for the previous to finish before starting the next.
+
+For me this seemed like a reasonable consideration, but its intent is not fully described by `Mutation`.
+
+When considering the following schema:
+
+```graphql
+type Mutation {
+  createUser(input: UserInput): User
+}
+```
+
+If we were to simply add:
+
+```graphql
+extend type Mutation {
+  batch: Mutation
+}
+```
+
+Not only would we have supported a brand new batched mutation mode for clients to use (which I think is pretty neat), but also fundamentally reversed the intent of what `Mutation` means - all without writing a single line of code.
+
+So, for a query like this:
+
+```graphql
+# Execute a bunch of mutations in parallel
+mutation BatchUserCreate {
+  batch {
+    createUser1: createUser(user: { name: "Mike" }) {
+      id
+    }
+    createUser2: createUser(user: { name: "Nick" }) {
+      id
+    }
+  }
+}
+```
+
+Every field nested under `batch` will still execute in parallel, even if those fields cause side effects. So this begs the question: _"Do we even need `Query` and `Mutation`?"_ **I think not.**
+
+---
+
+## A call to `Action`
+
+### Deprecating `Query` and `Mutation` in favour of `Action`
+
+Uprooting the two current types and replacing them each with a 3rd, say, `Action`, cannot happen all at once. However, what I am suggesting is that as a first step we add a third type (with `Query` and `Mutation` deprecated), and introduce new syntax or conventions for declaring side-effects. This would not only solve our discoverability problem, but would also add the ability to create "mutations", or serial actions, at any depth in the document tree.
+
+You have always had the option to create side-effects in your queries, and avoid them entirely in your mutations, so the premise that "`Mutation`s have side-effects" has always been mere _convention_, and not a very substantial one at that since it only applies to the root of the document. Having a single root operation, `action` (or even `{`), is powerful because it uncovers what truly dictates the behavior of the request: the fields, _not_ the operation.
+
+### How to declare execution semantics for `Action`?
+
+The question that remains is how should we declare how these fields are executed?
+
+Take this request as our motivating example - an `action` to configure a new virtual game:
+
+```graphql
+action (
+  $team: Team_Input,
+  $player1: Player_Input,
+  $player2: Player_Input
+) {
+  addTeam(input: $team) {
+    addedPlayer1: addPlayer(input: $player1) { name }
+    addedPlayer2: addPlayer(input: $player2) { name }
+  }
+  timeLeft(units: SECONDS)
+  score
+  referee { name }
+}
+```
+
+Under the current version of GraphQL, this query is _possible_ to create, but you would have to force typical `Query` root fields under `Mutation` or vice-versa.
+
+With `Action`, both types work side by side. Now to determine the execution order, there are a few options we can employ.
+
+#### Option 1: Execute fields with `input` arguments in series
+
+As a first option, `graphql` could assume that all fields with `input` arguments are executed in series, and all other fields in parallel. This convention might have its own pitfalls, though.
+
+#### Option 2: Using a `@mut` directive
+
+Another option would be to annotate side-effect causing fields in some way, such as adding a `@mut` directive, taking hints from languages [like Rust](https://doc.rust-lang.org/book/mutability.html):
+
+```graphql
+directive @mut on FIELD_DEFINITION
+  | INPUT_FIELD_DEFINITION
+  | FIELD
+
+# Add the @mut directive in your schema
+type Action {
+  createUser: User @mut
+}
+
+# Or at runtime like
+action (series: Boolean) {
+  createUser(input: { name: "Mike" }) @mut(if: $series) {
+    id
+  }
+}
+```
+
+#### Option 3: Sequential operations
+
+The final option, and maybe the most intuitive one, is to put the impetus of control-flow on the user by creating sequential operations (which requires the [often whispered about `@export` directive](https://www.youtube.com/watch?v=ViXL0YQnioU&feature=youtu.be&t=12m13s)).
+
+Here is an example of what I mean:
+
+```graphql
+action CreateFamily {
+  createPerson(name: "Mike") {
+    id @export(as: "siblingId") # Or maybe get id from parent
+    action {
+      # These would execute in parallel
+      createPerson(
+        name: "Nick",
+        siblings: [{ id: $siblingId }]
+      ) {
+        id
+        # Execute more recursive actions
+      }
+      createDog(
+        name: "Jackpot",
+        owner: { id: $siblingId }
+      ) {
+        id
+      }
+    }
+  }
+}
+```
+
+By returning the type `Action` as part of a field's response, a user can chain further actions to be executed serially with respect to their parent. This pattern would be tremendously powerful for arbitrarily supporting a client's needs, which is the entire point of GraphQL.
+
+## Summary
+
+Even if `Action` is never added to the spec, a lot of these concepts like batched mutations, sequential operations, and mixed actions (executing queries and mutations "together") are currently possible, and employing these tactics could give your clients' capabilities that we haven't yet imagined.
+
+I know rebuilding GraphQL from the ground up with this new system is a longshot, so if nothing else, at least now you know why we have mutations in the first place 😄.
+
+> **Note**: 🇪🇺 Talk to the GraphQL creators [Lee Byron](https://twitter.com/leeb) & [Nick Schrock](https://twitter.com/schrockn) and other GraphQL experts & enthusiasts about this topic at the upcoming [GraphQL Europe](https://www.graphql-europe.org) conference in Berlin. Get a 15% discount with this promo code: `see-you-in-berlin`
+
+[![Thanks for reading! Please feel free to ch out to me on twitter (@fixitup2) with any questions about GraphQL, JavaScript, or anything else on your mind. If you are wondering about these beautiful screenshots, they were created with carbon.now.sh, an app my friends and I built](https://cdn-images-1.medium.com/max/2000/1*h2cFW91a4bvgcJAIe5ccpg.png)](http://twitter.com/fixitup2)

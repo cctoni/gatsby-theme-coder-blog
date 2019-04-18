@@ -1,0 +1,230 @@
+---
+alias: 'ow4wahkekaep'
+heroImage: /blog/posts/mongodb-preview.png
+metaImage: /blog/posts/mongodb-preview.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import Code from 'gatsby-theme-coder-blog/src/components/Blog/Post/Code'
+import Collapse from 'gatsby-theme-coder-blog/src/components/Blog/Post/Collapse'
+
+<PostTitle>Prisma Now Supports MongoDB (Preview)</PostTitle>
+
+<Abstract>
+  Prisma 1.22 adds support for the popular NoSQL database [MongoDB](https://www.mongodb.com/). It has a new datamodel
+  format with exciting features such as embedded types, customizable IDs, new directives & more.
+</Abstract>
+
+## Introducing support for MongoDB
+
+Supporting the popular document database MongoDB has been one of Prisma's [most requested features](https://github.com/prisma/prisma/issues/1643). Today, we are excited to add MongoDB to the list of supported databases by introducing the MongoDB connector 🎉
+
+The MongoDB connector is available in the `1.22`-release, find the updated docs [here](https://prisma.io/docs/b6o5).
+
+## Get started with MongoDB & Prisma
+
+The easiest way to get started is by using the Prisma CLI and Docker:
+
+<Code hideCopy languages={["NPM", "Yarn"]}>
+
+```bash copy
+npm install -g prisma
+```
+
+```bash copy
+yarn global add prisma
+```
+
+</Code>
+
+When connecting to a MongoDB, you have two options:
+
+1. Start from scratch & set up a new database
+1. Connect to your existing MongoDB instance
+
+### Option 1: Start from scratch
+
+Now you can run the `prisma init` command to bootstrap your Prisma project:
+
+```bash copy
+prisma init hello-mongo
+```
+
+When prompted by the CLI wizard, select the following options:
+
+1. **New database**
+1. **MongoDB**
+1. **JavaScript Prisma Client** (or another client of your preference)
+
+This creates the `hello-mongo` directory with all necessary project files. Here is what the initial Prisma datamodel looks like:
+
+```graphql
+type User {
+  id: ID! @id
+  name: String!
+}
+```
+
+> The `@id`-directive is part of the [Datamodel v2](https://www.prisma.io/docs/-b6a7) which is currently in the Preview stage.
+
+Next, you can start Prisma which connects to your local MongoDB and then deploy the Prisma datamodel with these commands:
+
+```bash copy
+cd hello-mongo
+docker-compose up -d
+prisma deploy
+```
+
+You can now start using the Prisma client to read and write data in your database. Configure the dependencies and create a Node script with the following commands:
+
+```bash copy
+npm install --save prisma-client-lib
+touch index.js
+```
+
+Add the following code to `index.js`:
+
+```js copy
+const { prisma } = require('./generated/prisma-client')
+
+// A `main` function so that we can use async/await
+async function main() {
+  // Create a new user called `Alice`
+  const newUser = await prisma.createUser({ name: 'Alice' })
+  console.log(`Created new user: ${newUser.name} (ID: ${newUser.id})`)
+
+  // Read all users from the database and print them to the console
+  const allUsers = await prisma.users()
+  console.log(allUsers)
+}
+
+main().catch(e => console.error(e))
+```
+
+You can run this script using the following command:
+
+```bash copy
+node index.js
+```
+
+Running the script creates a new [document](https://docs.mongodb.com/manual/core/document/) in the `User` [collection](https://docs.mongodb.com/manual/core/databases-and-collections/#collections) and then retrieves all the documents from the `User` collection via the Prisma API. To inspect the data that's currently stored in your MongoDB, you can also [use the Mongo shell](https://prisma.io/docs/-b6o5#using-the-mongo-shell).
+
+### Option 2: Use your existing MongoDB
+
+If you're starting out with an already existing database, you can connect to it by providing the [connection string](https://docs.mongodb.com/manual/reference/connection-string/) to your MongoDB server as well as the MongoDB [database](https://docs.mongodb.com/manual/core/databases-and-collections/#databases) that holds your data.
+
+You can either use the interactive CLI wizard from the `prisma init` command to provide that information or connect manually using Docker (more info [here](https://prisma.io/docs/-b6o5#get-started-with-an-existing-database)).
+
+In any case, it is very important that the datamodel you're defining for your Prisma API matches the structure of the data that's currently stored in your database. If that's not the case, the Prisma API might show undefined behaviour.
+
+![](https://imgur.com/ODBLX2c.png)
+
+To save you the manual effort of writing the datamodel from scratch for your database, you can use the `prisma introspect` command (which is integrated in the CLI wizard) to introspect the current state of collections and documents in order to derice the datamodel from it. Learn more about the command [here](https://github.com/prisma/prisma/issues/3529).
+
+> Introspection for MongoDB is available in the current [beta](https://www.prisma.io/docs/-b5op/) release.
+
+---
+
+## Flexible relations: Links and embedded types
+
+With document databases like MongoDB, there are two ways to model a relation between two documents:
+
+- One document gets [_embedded_](https://docs.mongodb.com/manual/core/data-model-design/#data-modeling-embedding) into the other one as a _sub-document_
+- The documents _reference_ each other via unique IDs ([_normalization_](https://docs.mongodb.com/manual/core/data-model-design/#normalized-data-models))
+
+### Introducing embedded types
+
+Embedded documents can be defined in a Prisma datamodel as [embedded types](https://prisma.io/docs/-b6o5#embedded-types), based on the `@embedded` directive:
+
+```graphql
+type City {
+  id: ID! @id
+  name: String!
+  coordinates: Coordinates
+}
+
+type Coordinates @embedded {
+  latitude: Float!
+  longitude: Float!
+}
+```
+
+With this datamodel, instances of `Coordinates` can only ever exist in conjunction with an instance of the `City` type and will be stored in the `City` collection:
+
+![](https://imgur.com/MX4jsQQ.png)
+
+### Link relations: Only one side of a relation contains references
+
+When choosing to model your relations in a _flat_ manner, your documents will reference each other via unique IDs.
+
+In that case, Prisma requires you to specify which side of the relation should contain the references (called [_links_](https://prisma.io/docs/-b6o5#link-relations) in Prisma) using the new `link` argument of the `@relation` directive. The other side of the relation won't store _any_ reference to the first side in the underlying database:
+
+```graphql
+# `User` documents store references to `Post` documents via the `posts` field
+type User {
+  id: ID! @id
+  name: String!
+  posts: [Post!]! @relation(link: INLINE)
+}
+
+# `Post` documents won't store any references to `User` documents
+type Post {
+  id: ID! @id
+  title: String!
+  author: User!
+}
+```
+
+In this example, a `User` document stores a list of `Post` IDs in its `posts` field, but a `Post` has no actual reference to its `author` in the underlying database:
+
+![](https://imgur.com/R7pTU1D.png)
+
+### Improving the Prisma datamodel
+
+We are currently working on various [exciting features and updates](https://github.com/prisma/prisma/issues/3408) to the Prisma datamodel - the MongoDB connector is the first to benefit from those.
+
+Most importantly, the datamodel becomes more flexible. Fields that prior have been reserved for Prisma (`id`, `createAt` and `updatedAt`) can now be named differently. To get the same behaviour for these fields as before, use one of the newly introduced directives: `@id`, `@createdAt` or `@updatedAt`. Here is an example:
+
+<Code hideCopy languages={["New datamodel", "Old datamodel"]}>
+
+```graphql
+# Each field could have a different name
+type User {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+}
+```
+
+```graphql
+# The names of the fields are reserved for Prisma
+type User {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+```
+
+</Code>
+
+Another new feature is the `@db`-directive which allows you to separate the name of a type or field in the Prisma API from its name in the underlying database. For example:
+
+```graphql
+type User @db(name: "users") {
+  id: ID! @id
+  lastSeen: DateTime! @db(name: "last_seen_online")
+}
+```
+
+This is especially useful with the MongoDB connector as it is common practice in MongoDB to spell collections with a lowercase first letter in plural, whereas with Prisma you typically start model names with an uppercase letter and use the singular version.
+
+---
+
+## We 💚 your feedback
+
+Introducing the MongoDB connector is a huge step towards enabling Prisma as a universal database layer. You can learn everything you need to know to get started in the [documentation](https://prisma.io/docs/-b6o5).
+
+If you're interested in using MongoDB together with Prisma, please give it a try and share your feedback on [GitHub](https://github.com/prisma/prisma/issues/new/choose) or [Slack](https://slack.prisma.io).
+
+> Would you like to see another database connector? Check our list of [upcoming connectors](https://github.com/prisma/prisma#upcoming-connectors) and leave your +1 on the feature request of your favorite.

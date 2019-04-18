@@ -1,0 +1,371 @@
+---
+alias: '5934cd039db1'
+heroImage: /blog/posts/graphql-binding-2.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import Glitch from 'gatsby-theme-coder-blog/src/components/Blog/Post/Glitch'
+
+<PostTitle>GraphQL Binding 2.0: Improved API, schema transforms & automatic codegen</PostTitle>
+
+<Abstract>
+  In a recent blog post, we introduced the concept of GraphQL bindings as a way for reusing and composing GraphQL APIs.
+  Since then, we have received great feedback from the community and thought a lot about further use cases and scenarios
+  for bindings — today we are proud to present version 2.0 🎉
+</Abstract>
+
+> [Go to the _graphql-binding_ GitHub repo.](https://github.com/graphql-binding/graphql-binding)
+
+Here’s an overview of the major changes & new features:
+
+- More **flexible and powerful API** (e.g. passing context, applying [schema transforms](https://www.apollographql.com/docs/graphql-tools/schema-transforms.html) or modifying the [info](https://blog.graph.cool/graphql-server-basics-demystifying-the-info-argument-in-graphql-resolvers-6f26249f613a) object)
+- It’s now super easy to **create your own GraphQL bindings**
+- Powerful tooling for automatic **code generation**
+- Seamless **integration** with [graphql-config](https://github.com/prismagraphql/graphql-config)
+
+In this blog post, you’ll learn [what GraphQL bindings are](https://blog.graph.cool/graphql-binding-2-0-improved-api-schema-transforms-easier-creation-5934cd039db1#c432), [how to use them](https://blog.graph.cool/graphql-binding-2-0-improved-api-schema-transforms-easier-creation-5934cd039db1#126e) as well as [how you can create your own GraphQL binding](https://blog.graph.cool/graphql-binding-2-0-improved-api-schema-transforms-easier-creation-5934cd039db1#e198).
+
+---
+
+## What are GraphQL Bindings?
+
+### GraphQL bindings allow you to send queries and mutations in your programming language
+
+GraphQL bindings provide a convenient way for interacting with a GraphQL API: Instead of sending queries as strings via HTTP, you invoke a binding function which constructs the query and sends it to the GraphQL server for you.
+
+![](https://cdn-images-1.medium.com/max/2800/1*I4zR2442zdvwlwmCH5x0FQ.png)
+
+### Auto-generated SDKs for your programming language
+
+The best thing about GraphQL bindings is that they’re automatically generated, meaning they effectively come for free — think of them like an _auto-generated SDK for a specific GraphQL API_.
+
+![](https://cdn-images-1.medium.com/max/2800/1*RzlbHpIbo1g46x3x2lPUkQ.png)
+
+---
+
+## How to use GraphQL Bindings?
+
+### Use cases
+
+GraphQL bindings are an extremely flexible tool that can be used in a variety of scenarios. Here are a few use cases where using bindings comes in handy:
+
+- GraphQL-based _service-to-service communication_
+- Building _GraphQL gateways_
+- Accessing GraphQL APIs from a _script_
+- Adding _custom operations_ to a GraphQL API
+- Sharing _runnable instances_ of GraphQL APIs
+
+In the following two sections, we’ll explain two common usage scenarios for GraphQL bindings — the examples are based on this GraphQL schema:
+
+```graphql
+type User {
+  id: ID!
+  name: String
+}
+
+type Query {
+  users: [User!]!
+}
+
+type Mutation {
+  createUser(name: String!): User!
+}
+```
+
+Let’s also assume this GraphQL API would be available as a GraphQL binding through an NPM package called `graphql-binding-users`.
+
+### Scenario 1: Usage in a simple Node script
+
+The easiest way to use GraphQL bindings is with a simple Node script.
+
+A GraphQL binding for the above schema will now let you send the users query and createUser mutation by invoking binding functions in JavaScript, here is what the code for the createUser mutation looks like:
+
+```js
+const userBinding = require('graphql-binding-users')
+
+// Create a new `User`
+userBinding.mutation
+  .createUser(
+    {
+      name: 'Alice',
+    },
+    `{ id }`,
+  )
+  .then(({ id }) => console.log(`The ID of the created user is: ${id}`))
+```
+
+The mutation property on the userBinding exposes functions for all mutations. Each binding function takes (at least) two arguments:
+
+- The **arguments** of the operation
+- The **[selection set](https://medium.com/front-end-developers/graphql-selection-sets-d588f6782e90)** of the operation
+
+In the above case, the arguments are wrapped in an object and contain the name of the new User, the selection set only specifies the id field. This invocation of the createUser function will construct and send the following mutation to the GraphQL API:
+
+```graphql
+mutation {
+  createUser(name: "Alice") {
+    id
+  }
+}
+```
+
+The users query which is sent in the following code snippet does not receive any arguments:
+
+```js
+const userBinding = require('graphql-binding-users')
+
+// Retrieve all `User`s
+userBinding.query.users({}, `{ id name }`).then(users => console.log(`Retrieved all users: ${users}`))
+```
+
+This function call is translated into the following query:
+
+```graphql
+query {
+  users {
+    id
+    name
+  }
+}
+```
+
+In these cases, the binding is used as a convenient way to interact with a GraphQL API. Using bindings in statically typed languages even allows to have *typed inputs and outputs *for the binding functions which allows for further features like autocompletion and compile-time error checking.
+
+### Scenario 2: Usage in a GraphQL gateway
+
+When building gateways for GraphQL-based microservices, bindings are especially helpful. In the previous example, you have seen binding functions where the selection sets for the constructed operations were passed as (static) _strings_.
+
+For the current use case of a GraphQL gateway, the binding API allows to generate the selection set *dynamically *by passing on the [info](https://blog.graph.cool/graphql-server-basics-demystifying-the-info-argument-in-graphql-resolvers-6f26249f613a) argument of the GraphQL resolvers.
+
+Let’s assume we have a gateway server which puts another GraphQL layer on the initial schema — here is what the gateway schema looks like:
+
+```graphql
+type Query {
+  user(id: ID!): User
+}
+
+type Mutation {
+  createUserWithRandomName: User!
+}
+```
+
+The API defined by this schema allows to retrieve a single User by their id and create new Users with random names.
+
+The resolvers for this schema can be implemented as follows:
+
+```js
+const userBinding = require('graphql-binding-users')
+const generateName = require('sillyname')
+
+const resolvers = {
+  Query: {
+    user: async (parent, args, context, info) => {
+      const users = await userBinding.query.users({}, info)
+      return users.find(user => user.id === args.id)
+    },
+  },
+  Mutation: {
+    createUserWithRandomName: (parent, args, context, info) => {
+      const sillyName = generateName()
+      return userBinding.mutation.createUser(
+        {
+          name: sillyname,
+        },
+        info,
+      )
+  }
+}
+```
+
+The major difference compared to the previous usage scenario is that this time the selection set is not hardcoded any more — instead it’s determined based on the selection set of the incoming query.
+
+The [info](https://blog.graph.cool/graphql-server-basics-demystifying-the-info-argument-in-graphql-resolvers-6f26249f613a) object carries the [AST](https://medium.com/@cjoudrey/life-of-a-graphql-query-lexing-parsing-ca7c5045fad8) of the incoming query, so it “knows” the requested fields from the selection set. Because the operations in the gateway layer are both of type User and the ones in the underlying GraphQL API are of type User as well, the query can be [delegated](https://blog.graph.cool/graphql-schema-stitching-explained-schema-delegation-4c6caf468405) by simply passing on the info object.
+
+---
+
+## How to create your own GraphQL Binding?
+
+Let’s now discuss how you can actually create your own bindings (which for example could then be shared via NPM).
+
+To create your own binding, you need to extend the Binding class from the graphql-binding package and provide an *executable *instance of [GraphQLSchema](https://blog.graph.cool/graphql-server-basics-the-schema-ac5e2950214e#e3b9). Your Binding subclass will then expose all operations from the executable schema as binding functions.
+
+### Example 1: Creating a binding from a local schema
+
+In this example, the gateway server will use an executable schema that’s implemented locally in the (instead of referring to a deployed GraphQL API).
+
+The GraphQL-based microservice consumed by the gateway exposes CRUD operations for a Post type with the this schema:
+
+```graphql
+type Query {
+  posts: [Post!]!
+  post(id: ID!): Post
+}
+
+type Mutation {
+  createPost(title: String!, content: String!, published: Boolean): Post!
+  updatePost(id: ID!, title: String, content: String, published: Boolean): Post
+  deletePost(id: ID!): Post
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String!
+  published: Boolean!
+}
+```
+
+The gateway exposes domain-specific operations on the Post types (rather than the generic CRUD operations):
+
+```graphql
+type Query {
+  posts(searchString: String): [Post!]!
+}
+
+type Mutation {
+  createDraft(title: String!, content: String!): Post
+  publish(id: ID!): Post
+  deletePost(id: ID!): Post
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String!
+  published: Boolean!
+}
+```
+
+You can check out the inner workings of the entire gateway server in the embedded [Glitch](http://www.glitch.com) element (note that for simplicity, all data is stored in-memory rather than being persisted to a database):
+
+<Glitch name="example-1" />
+
+Here’s an overview of the different files:
+
+- post-service/src/schema.js : Creates and exports the executable GraphQLSchema object (by providing a schema definition and implementing corresponding GraphQL resolvers).
+- gateway/src/PostBinding.js: Creates and exports the PostBinding class which extends the Binding class from graphql-binding.
+- gateway/src/index.js: Implements the GraphQL gateway server by delegating all requests to the underlying microservice using PostBinding.
+
+### Example 2: Creating a binding from a deployed GraphQL API
+
+In the first example, the executable schema was created by providing a schema definition and matching resolvers. In this section, we’re going to create a _[remote executable schema](https://blog.graph.cool/how-do-graphql-remote-schemas-work-7118237c89d7)_ which requires the URL of a deployed GraphQL API.
+
+For the purpose of this tutorial, we’ve quickly deployed the GraphQL microservice from the previous example using [Zeit Now](https://blog.graph.cool/deploying-graphql-servers-with-zeit-now-85f4757b79a7), here is the URL of the deployed API: [https://post-service-nyvvyjtbyt.now.sh](https://post-service-nyvvyjtbyt.now.sh)
+
+Now, we adjust the way how the PostBinding class is created and create a remote executable schema based on the deployed API:
+
+```js
+const fs = require('fs')
+const path = require('path')
+const fetch = require('node-fetch')
+const { Binding } = require('graphql-binding')
+const { HttpLink } = require('apollo-link-http')
+const { makeRemoteExecutableSchema } = require('graphql-tools')
+
+const link = new HttpLink({ uri: 'https://post-service-nyvvyjtbyt.now.sh', fetch })
+const typeDefs = fs.readFileSync(path.join(__dirname, '../schemas/post-service.graphql'), 'utf-8')
+
+const schema = makeRemoteExecutableSchema({ link, schema: typeDefs })
+
+class PostBinding extends Binding {
+  constructor() {
+    super({ schema })
+  }
+}
+
+module.exports = PostBinding
+```
+
+Again, you explore and test the entire gateway server using Glitch:
+
+<Glitch name="example-2" />
+
+### Example 3: Creating a gateway for two GraphQL APIs
+
+In this example, we’re adding another GraphQL-based microservice to be consumed by the gateway and create a new abstraction which makes it a bit easier to create a GraphQL binding based on a deployed GraphQL API.
+
+Here is what the schema for the new GraphQL microservice looks like, it provides CRUD operations for a User type:
+
+```graphql
+type Query {
+  user(id: ID!): User
+  users: [User!]!
+}
+
+type Mutation {
+  createUser(name: String!): User!
+  updateUser(id: ID!, name: String!): User
+  deleteUser(id: ID!): User
+}
+
+type User {
+  id: ID!
+  name: String!
+}
+```
+
+Note that we’ve deployed a version of this API using Now to this URL: [https://user-service-sfhcesmzmg.now.sh](https://user-service-sfhcesmzmg.now.sh)
+
+Since we now have two GraphQL APIs for which we want to generate a GraphQL binding, we’re introducing a new abstraction to reduce code duplication:
+
+```js
+const fs = require('fs')
+const path = require('path')
+const fetch = require('node-fetch')
+const { Binding } = require('graphql-binding')
+const { HttpLink } = require('apollo-link-http')
+const { makeRemoteExecutableSchema } = require('graphql-tools')
+
+class RemoteBinding extends Binding {
+  constructor({ typeDefsPath, endpoint }) {
+    const link = new HttpLink({ uri: endpoint, fetch })
+    const typeDefs = fs.readFileSync(path.join(__dirname, typeDefsPath), 'utf-8')
+
+    const schema = makeRemoteExecutableSchema({ link, schema: typeDefs })
+
+    super({ schema })
+  }
+}
+
+module.exports = RemoteBinding
+```
+
+We’re also attaching both binding instances to the context rather than using “global” versions of them inside the resolvers:
+
+```js
+const postServiceBinding = new RemoteBinding({
+  typeDefsPath: '../schemas/post-service.graphql',
+  endpoint: 'https://post-service-nyvvyjtbyt.now.sh',
+})
+const userServiceBinding = new RemoteBinding({
+  typeDefsPath: '../schemas/user-service.graphql',
+  endpoint: 'https://user-service-lvzqpqmeqb.now.sh/',
+})
+
+const server = new GraphQLServer({
+  typeDefs: './src/schema.graphql',
+  resolvers,
+  context: req => ({
+    ...req,
+    userService: userServiceBinding,
+    postService: postServiceBinding,
+  }),
+})
+```
+
+Feel free to play around with the running version of the gateway server in Glitch:
+
+<Glitch name="example-3" />
+
+---
+
+## Stay tuned for upcoming blog posts
+
+In this blog post, we only covered the most basic use cases of GraphQL bindings, using them in scripts or in GraphQL gateway servers. There are several important topics that we haven’t touched on yet, most notably:
+
+- Extending a GraphQL binding with custom functionality
+- Code generation and type safety for GraphQL bindings
+- Using schema transforms
+
+We'll discuss those topics in-depth in a number of upcoming blog posts, stay tuned… 👀

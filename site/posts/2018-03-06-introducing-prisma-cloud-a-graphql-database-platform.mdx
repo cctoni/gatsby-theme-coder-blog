@@ -1,0 +1,105 @@
+---
+alias: 'ed591baa8737'
+heroImage: /blog/posts/introducing-prisma-cloud-a-graphql-database-platform.png
+authors: [nikolasburk]
+---
+
+import { PostTitle, Abstract } from 'gatsby-theme-coder-blog/src/components/Blog/Post/Metadata'
+import Youtube from 'gatsby-theme-coder-blog/src/components/Blog/Post/Youtube'
+
+<PostTitle>Introducing Prisma Cloud — A GraphQL Database Platform</PostTitle>
+
+<Abstract>The easiest way to run Prisma in production — on any cloud.</Abstract>
+
+After the [invite-only preview](https://blog.graph.cool/prisma-cloud-preview-invite-only-c251bebf5670), we are very excited to officially introduce [Prisma Cloud](https://www.prismagraphql.com/cloud/), a serverless hosting platform for Prisma.
+
+**To get started, you can [sign up here](https://app.prisma.sh)**. 🎉
+
+It offers powerful *data workflows *like exploring and editing data in an intuitive *data browser *as well as _automatic rollbacks_. Further features include _team collaboration_,_ performance metrics_,* health checks *and more. Simply connect your database and you’re ready to go!
+
+> This article is about **Prisma Cloud**, a hosting platform for Prisma services. **Prisma **is an open-source tool that helps you build GraphQL servers — learn more about Prisma in the [documentation](https://www.prismagraphql.com/docs) or with this 4-min [demo video](https://www.youtube.com/watch?v=20zGexpEitc).
+
+![](https://cdn-images-1.medium.com/max/6720/1*8hue3n4IyMf3d6iX2hL-tQ.png)
+
+## The evolution of database technologies & hosting
+
+Before diving into the features of Prisma Cloud, let’s take a look at the history of databases and how they are hosted. (Feel free to skip ahead if you want.)
+
+### From SQL to NoSQL: A growing jungle of specialized databases
+
+The field of databases has a long history. Many different kinds of databases have been developed since the first relational DB was invented in 1970.
+
+![](https://cdn-images-1.medium.com/max/4732/1*YRTutyyz56U7IaT3EzpQJw.png)
+
+For the longest time, **_relational databases_**, such as MySQL and Oracle, were state-of-the-art for any type of application that was developed. At that time, *monoliths *were the standard architecture for application development.
+
+At some point,** _NoSQL databases_** entered the game. MongoDB, Redis and Neo4j, to name a few, fall into that category. The goal of NoSQL was to either provide a _simpler interface_ to working with data or cater to _specific use cases_ and choose different optimization strategies.
+
+Nowadays, databases are becoming available as **_globally distributed_** systems such as Google Spanner or CockroachDB. These kinds of databases are horizontally scalable and come with automatic replication features as well as guarantees for consistency, availability and scalability.
+
+### Manual, Managed & Serverless: Database hosting is getting simpler
+
+Similar to the historic development of database _technologies_, the ways how databases are _hosted_ also has evolved quite a bit over the past decades.
+
+![](https://cdn-images-1.medium.com/max/4732/1*el8WJKzpZYR2r9k0TvaJag.png)
+
+In the early days of the web everybody had to run databases on their own physical servers. EC2 and Digital Ocean made this easier, but a deep technical understanding is still required to **_manually_** operate database.
+
+**_Managed services_** such as Heroku’s Postgres Service, AWS RDS and Mongo Atlas abstracted away a lot of the complex details. Database management has become simpler, but the underlying model is still the same, requiring developers to provision compute capacity upfront.
+
+The most recent development, **_serverless_** databases, frees developers from worrying about infrastructure, as their database simply scales up and down to match the current load while paying based on actual usage. Aurora Serverless and CosmosDB are prominent examples.
+
+### The future of database management: Prisma & Prisma Cloud
+
+Prisma is a GraphQL database proxy turning a database into a GraphQL API. Instead of reading and writing from/to the database using SQL or another database API, you’re using expressive GraphQL queries and mutations.
+
+As described above, we now have a plethora of databases available, all bringing different strengths and tradeoffs to the table. Prisma’s coherent GraphQL API makes it easy for developers to work with data from multiple existing databases or even incorporating new types of databases into their application.
+
+> Today, Prisma works with MySQL. In the future, [other databases](https://github.com/graphcool/prisma/issues/1751) and services will be supported (MongoDB, Elasticsearch, Neo4J, …) as well.
+
+When using Prisma Cloud, you can choose any of the aforementioned technologies and hosting options for your database(s). Just as tools like Netlify and Zeit focus on a narrow slice of the tech stack (static hosting for Netlify, dynamic hosting for Zeit), so does Prisma Cloud by focusing on _the connection between databases and your applications_.
+
+In that sense, Prisma Cloud doesn’t provide any database hosting and makes no decisions about the database technology to be used — it is used *on top *of existing providers and can be _combined_ with any database technology.
+
+## Prisma Cloud — Feature overview
+
+### Serverless cluster hosting
+
+Prisma Cloud exposes a serverless deployment model. This means you simply pay for the resources you consume (_pay-as-you-go_) — Prisma Cloud will scale the underlying resources dynamically to meet your demand.
+
+In other words, you don’t have to predict how many servers you need or over-provision in anticipation of a big launch — Prisma handles all of that for you.
+
+### A beautiful data browser
+
+At the heart of the Prisma Cloud Console is a beautiful data browser. With an intuitive UI and data editing capabilities similar to Excel and Airtable, it opens up your application data to domain experts who normally wouldn’t be able to query the database directly.
+
+![](https://cdn-images-1.medium.com/max/2960/1*6bh-ex332D9jWUTAh6v7Xw.png)
+
+Every Prisma Cloud service also features an integrated [GraphQL Playground](https://github.com/graphcool/graphql-playground) –a powerful GraphQL IDE to send queries and mutations to your database. It also includes auto-completion features and intuitive API documentation.
+
+### Team collaboration features
+
+With Prisma Cloud you have one central access point to all your data. Instead of creating custom admin tools for content writers and the support team, simply invite them to your Prisma Cloud team and set up appropriate data access rights.
+
+![](https://cdn-images-1.medium.com/max/2264/1*iM5zUYKzrncDVBWWXdUxuw.png)
+
+### Metrics, health checks & database insights
+
+Monitoring is critical for operating your demanding applications at scale. Prisma Cloud can scale to tens of thousands of requests per second while providing insights into current request patterns as well as the state of the underlying databases.
+
+The Prisma Console includes a dashboard that displays various performance metrics. In the future, there will be more detailed monitoring tools to help you analyse the impact of specific queries and optimize the data model.
+
+![](https://cdn-images-1.medium.com/max/2800/1*tr__aN3Whln_RVd4K2voyA.png)
+
+### Deployment history & automatic rollbacks
+
+A Prisma service is defined by a mapping that describes the structure of one or more databases. Whenever the service is updated, the change is recorded in the _deployment history_ with detailed information about _what_ changed and _who_ performed the change.
+In the future we will introduce point-in-time restore, allowing you to roll back the state of your database to just before a bad change was introduced
+
+## Get started with Prisma Cloud today
+
+Prisma Cloud is a serverless GraphQL database platform that provides a simple abstraction and handy tools to manage your databases. It comes with a set of awesome features that make your data-related workflows a breeze.
+
+<Youtube videoId="jELE4KXJPn4" />
+
+**Get started with Prisma Cloud today by simply [logging in with your GitHub account](https://app.prisma.sh/). **To learn more about how Prisma Cloud works, you can check out the [documentation](https://www.prismagraphql.com/docs/tutorials/cluster-deployment/prisma-cloud-ua9gai4kie).
