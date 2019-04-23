@@ -25,7 +25,7 @@ function CustomBio({ author, twitter, piclink, bio }) {
         <strong>{author}</strong>
         <p>
           {bio}{' '}
-          <a href={`https://twitter.com/${twitter}`}>
+          <a target="_blank" href={`https://twitter.com/${twitter}`}>
             {`Follow @${twitter} on Twitter!`}
           </a>
         </p>

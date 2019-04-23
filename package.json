@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "ws": "yarn workspace",
-    "dev": "yarn workspace site develop"
+    "dev": "yarn workspace blog develop",
+    "blog:theme": "yarn ws novvum-theme-blog-mdx",
+    "blog": "yarn ws blog"
   },
   "workspaces": [
     "themes/*",
