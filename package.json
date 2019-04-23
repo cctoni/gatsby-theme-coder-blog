@@ -1,12 +1,13 @@
 {
-  "name": "coder-blog",
+  "name": "novvum-blog-theme",
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "ws": "yarn workspace",
     "dev": "yarn workspace site develop"
   },
   "workspaces": [
-    "site",
+    "themes/*",
     "packages/*"
   ]
 }

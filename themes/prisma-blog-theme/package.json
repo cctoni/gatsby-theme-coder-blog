@@ -1,5 +1,5 @@
 {
-  "name": "gatsby-theme-coder-blog",
+  "name": "prisma-theme-blog",
   "version": "0.0.1",
   "description": "The content/gatsby theme for htg2",
   "main": "index.js",
@@ -20,9 +20,9 @@
     "typescript": "^3.3.3333"
   },
   "peerDependencies": {
-    "gatsby": "^2.3.24",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "gatsby": "^2.1.19",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3"
   },
   "dependencies": {
     "@mdx-js/loader": "^0.20.3",

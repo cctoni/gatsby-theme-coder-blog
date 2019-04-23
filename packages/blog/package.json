@@ -1,0 +1,23 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "author": "rajinwonderland",
+  "private": true,
+  "dependencies": {
+    "gatsby": "^2.1.19",
+    "gatsby-mdx": "^0.4.3",
+    "novvum-theme-blog-mdx": "*",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3"
+  },
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "dev": "gatsby develop",
+    "start": "gatsby develop",
+    "serve": "gatsby serve",
+    "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
+    "clean": "gatsby clean && rm -rf yarn-error.log",
+    "nuke": "yarn clean && rm -rf node_modules"
+  }
+}

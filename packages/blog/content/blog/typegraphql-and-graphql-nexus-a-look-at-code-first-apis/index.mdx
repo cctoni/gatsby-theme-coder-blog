@@ -1,0 +1,113 @@
+---
+title: TypeGraphQL and GraphQL Nexus — A Look at Code-First APIs 👀
+date: '2019-04-16T10:00:00.200Z'
+author: 'Rohit Ravikoti'
+bio: 'Co-founder of Novvum, a software agency specializing in GraphQL, and daily meditator.'
+twitter: 'rovvum'
+piclink: 'https://cdn-images-1.medium.com/fit/c/100/100/1*GhAwSHN43nefc_vKW0rxRg.png'
+readingTime: '6 min read'
+---
+
+![](https://cdn-images-1.medium.com/max/2600/1*6xgfhg4D74iVEJViUgRFyw.png)
+
+# TypeGraphQL and GraphQL Nexus — A Look at Code-First APIs 👀
+
+Ever since the Prisma team [announced GraphQL Nexus](https://www.prisma.io/blog/introducing-graphql-nexus-code-first-graphql-server-development-ll6s1yy5cxl5/), there has been much interest in code-first schema development. Here at [Novvum](https://www.novvum.io/), we think this is a massive step in the right direction, but there has been a lot of confusion over how [Nexus](https://nexus.js.org/) differs from [TypeGraphQL](https://typegraphql.ml/). This post aims to break down the differences and hopefully clarify the confusion.
+
+### Code-first: A programmatic API for constructing GraphQL schemas
+
+Before we get started, let’s recap why code-first schema development came to be. A popular approach in the Node.js ecosystem for writing a GraphQL server is schema-first or SDL-first. In the schema-first convention, you first define a schema in a Schema Definition Language (SDL) and write resolvers separately. If you were using TypeScript, you would need to define the schema types a second time to be used in your code. Therefore, making a change in the schema requires changes in three different places — the SDL, the resolvers, and the TypeScript types.
+
+In code-first, the schema is defined _in_ the code, and the SDL gets generated as an _artifact_. You no longer need to keep track of schema changes in multiple locations! 🎊 Which brings us to Nexus and TypeGraphQL. Both libraries aim to help with code-first schema development, but they differ significantly in how they work.
+
+### Comparing APIs of GraphQL Nexus and TypeGraphQL 🗒
+
+#### Types
+
+When building a GraphQL schema, a lot of time is spent writing types. Because of this, both Nexus and TypeGraphQL try to make this process as simple as possible.
+
+Given the following SDL type:
+
+![](https://cdn-images-1.medium.com/max/1600/1*9NrTjz7jWH94dh7S2jqS-A.png)
+
+Here is how it would be defined in TypeGraphql and GraphQL Nexus respectively:
+
+![](https://cdn-images-1.medium.com/max/1200/1*8cYgWicNS9zPz_sd52krxQ.png)![](https://cdn-images-1.medium.com/max/1200/1*TEQjRCLll5xlov1T8BvGjA.png)Left: **TypeGraphQL** | Right: **GraphQL Nexus**
+
+As you can see, the APIs of the two libraries are very different. TypeGraphQL uses classes and relies on an experimental TypeScript feature called [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html) (the lines of code that start with the `@` symbol). GraphQL Nexus uses native JavaScript syntax.
+
+With TypeGraphQL, the TypeScript type is simply the `User` class that we write. It also integrates well with other decorator-based libraries like [TypeORM](https://github.com/typeorm/typeorm), [sequelize-typescript](https://github.com/RobinBuschmann/sequelize-typescript) or [Typegoose](https://github.com/szokodiakos/typegoose).
+
+On the other hand, Nexus auto-generates type-definitions as we develop, and infers them in our code, giving us IDE completion and type error catching out of the box. It also has seamless integration with various databases with the upcoming [Yoga 2](https://github.com/prisma/yoga2). **UPDATE:** [Here](https://www.prisma.io/blog/using-graphql-nexus-with-a-database-pmyl3660ncst) is a blog post outlining how to integrate GraphQL Nexus with Prisma.
+
+#### Resolvers
+
+Okay, so both libraries are very straightforward when it comes to defining types and eliminating redundant code between the schema definition and TypeScript types. Now, how would we write the resolvers? This is where the two libraries take very different approaches.
+
+Here is how we would add resolvers for our `User` type in both libraries:
+
+![](https://cdn-images-1.medium.com/max/1200/1*EUoMvvGBGHf0g5hdcuwePQ.png)![](https://cdn-images-1.medium.com/max/1200/1*u90eCZeVUxQ7dVC4PN3n0A.png)Left: **TypeGraphQL** | Right: **GraphQL Nexus**
+
+With TypeGraphQL, the resolvers live separately from the type definition, similar to the SDL-first paradigm (**EDIT:** I stand [corrected](https://twitter.com/typegraphql/status/1118946711102197760). It is possible to [define resolvers in the same location](https://github.com/19majkel94/type-graphql/blob/v0.17.1/examples/simple-usage/recipe-type.ts#L25-L33) as the type definition). The resolver for the posts field is defined using the `@FieldResolver()` decorator. You would add fields for the root Query and Mutation by using the `@Query(returns => User)` and `@Mutation(returns => User)` decorators respectively.
+
+With GraphQL Nexus, the resolvers are part of the type definition. Another bonus is that we get code completion as we write the resolvers since Nexus is auto-generating the TypeScript types for the resolvers.
+
+### A Closer Look at the API Design Decisions 🔭
+
+I will let the two libraries speak for themselves from their docs.
+
+[**TypeGraphQL**](https://typegraphql.ml/docs/introduction.html#why)**:**
+
+> To add a new field to our entity, we have to jump through all the files: modify the entity class, then modify the schema, and finally update the interface. The same goes with inputs or arguments: it’s easy to forget to update one of them or make a mistake with a type. Also, what if we’ve made a typo in a field name? The rename feature (F2) won’t work correctly.
+
+> TypeGraphQL comes to address these issues, based on experience from over a year of developing GraphQL APIs in TypeScript. The main idea is to have only one source of truth by defining the schema using classes and a bit of decorator help. Additional features like dependency injection, validation and auth guards help with common tasks that would normally have to be handled by ourselves.
+
+[**GraphQL Nexus**](https://nexus.js.org/docs/why-graphql-nexus)**:**
+
+> The core idea of GraphQL Nexus draws from basing the schema off the SDL — keeping things declarative and simple to understand. It allows you to reference the type names as string literals rather than always needing to import to reference types (you can do that too if you prefer).
+
+> By combining automatic type generation with some of the more powerful features of TypeScript — type merging, conditional types, and type inference, we can know exactly which type names we are referring to and able to use throughout our code. We can know both the parameters and the return type of resolvers without providing any type annotation. It takes a little getting used to, but it ends up leading to a great feedback loop of the types annotating themselves.
+
+### Summary: Which One to Choose?
+
+I hope these examples helped you understand how different the two libraries are. Let’s take a look at some of the tradeoffs of each library.
+
+#### **TypeGraphQL**
+
+**Pros:**
+
+- Reduces the number of places to keep track of your schema from three to **two or one**. TypeScript types and schema types are combined, but resolvers can either be defined separately or alongside the type definition.
+- Has been around longer, so at the time of writing, it has more features like field validation and authorization.
+- What you see is what you get when it comes to TypeScript types.
+
+**Cons:**
+
+- Works **only with** TypeScript since it relies on [metadata reflection](https://github.com/rbuckton/reflect-metadata).
+- The way we annotate types feels redundant when defining fields and resolvers which could lead to silent mismatch errors. More details [here](https://github.com/19majkel94/type-graphql/issues/296).
+
+**NOTE:** If you are currently using TypeGraphQL and it is providing value for you or your team, please [donate](https://opencollective.com/typegraphql) to them!
+
+#### **GraphQL Nexus**
+
+**Pros:**
+
+- Reduces the number of places to keep track of your schema from three to **one**. The schema and TypeScript types and resolvers are in one place.
+- Sticks to using standard JavaScript syntax and generates TypeScript types, so it works with both languages.
+- Autocompletion and type-checking support for IDEs provide a great developer experience.
+
+**Cons:**
+
+- The younger of the two libraries, so it is missing some useful features. Some are on [the horizon](https://nexus.js.org/docs/future-features).
+- Since it relies on type generation, the server has to be running while developing. More info [here](https://github.com/prisma/nexus/issues/77).
+
+### Which one we prefer 🙌
+
+At Novvum, we have been using Nexus pretty extensively, and we migrated [MarvelQL](https://github.com/Novvum/MarvelQL), a GraphQL wrapper around the Marvel API, to use it. After also trying TypeGraphQL, we feel that Nexus has been much friendlier to work with, given us more flexibility, and enabled us to move more quickly. However, this is what works well for us, and we understand that all teams operate differently.
+
+### Let us know what you think ✍️
+
+I hope this post proved helpful for those who were not sure of what the differences were between the two libraries. If there is still confusion, please [reach out](https://www.novvum.io/contact-us) to us, or you can get a hold of me directly:
+
+Email — [rohit@novvum.io](mailto:rohit@novvum.io)
+
+twitter — [@rovvum](https://twitter.com/rovvum)
