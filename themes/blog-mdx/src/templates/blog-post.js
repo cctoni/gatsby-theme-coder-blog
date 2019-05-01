@@ -15,56 +15,70 @@ class BlogPostTemplate extends React.Component {
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
-        <SEO title={post.frontmatter.title} description={post.excerpt} />
-        <h1>{post.frontmatter.title}</h1>
-        <p
+        <img src={post.frontmatter.banner} width="1280" height="640" />
+        <div
           style={{
-            ...scale(-1 / 5),
-            display: `block`,
-            marginBottom: rhythm(1),
-            marginTop: rhythm(-1),
+            maxWidth: rhythm(32),
+            padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
+            marginLeft: `auto`,
+            marginRight: `auto`,
           }}
         >
-          <strong>{post.frontmatter.readingTime}</strong>{' '}
-          {post.frontmatter.date}
-        </p>
-        <MDXRenderer>{post.code.body}</MDXRenderer>
-        <hr
-          style={{
-            marginBottom: rhythm(1),
-          }}
-        />
-        <Bio
-          author={post.frontmatter.author}
-          twitter={post.frontmatter.twitter}
-          piclink={post.frontmatter.piclink}
-          bio={post.frontmatter.bio}
-        />
+          <SEO title={post.frontmatter.title} description={post.excerpt} />
+          <p
+            style={{
+              ...scale(-1 / 5),
+              display: `block`,
+              marginBottom: rhythm(1),
+              marginTop: rhythm(-1),
+            }}
+          >
+            <strong>{post.frontmatter.readingTime}</strong>{' '}
+            {post.frontmatter.date}
+          </p>
+          <MDXRenderer>{post.code.body}</MDXRenderer>
+          <hr
+            style={{
+              marginBottom: rhythm(1),
+            }}
+          />
+          {console.log(post)}
+          <Bio
+            author={post.frontmatter.author}
+            twitter={post.frontmatter.twitter}
+            piclink={post.frontmatter.piclink}
+            bio={post.frontmatter.bio}
+            orgaName={post.frontmatter.orgaName}
+            orgaPicLink={post.frontmatter.orgaPicLink}
+            orgaBio={post.frontmatter.orgaBio}
+            banner={post.frontmatter.banner}
+          />
 
-        <ul
-          style={{
-            display: `flex`,
-            flexWrap: `wrap`,
-            justifyContent: `space-between`,
-            listStyle: `none`,
-            padding: 0,
-          }}
-        >
-          <li>
-            {previous && (
-              <Link to={previous.fields.slug} rel="prev">
-                ← {previous.frontmatter.title}
-              </Link>
-            )}
-          </li>
-          <li>
-            {next && (
-              <Link to={next.fields.slug} rel="next">
-                {next.frontmatter.title} →
-              </Link>
-            )}
-          </li>
-        </ul>
+          <ul
+            style={{
+              display: `flex`,
+              flexWrap: `wrap`,
+              justifyContent: `space-between`,
+              listStyle: `none`,
+              padding: 0,
+            }}
+          >
+            <li>
+              {previous && (
+                <Link to={previous.fields.slug} rel="prev">
+                  ← {previous.frontmatter.title}
+                </Link>
+              )}
+            </li>
+            <li>
+              {next && (
+                <Link to={next.fields.slug} rel="next">
+                  {next.frontmatter.title} →
+                </Link>
+              )}
+            </li>
+          </ul>
+        </div>
       </Layout>
     )
   }
@@ -90,6 +104,10 @@ export const pageQuery = graphql`
         twitter
         piclink
         bio
+        orgaName
+        orgaPicLink
+        orgaBio
+        banner
       }
       code {
         body

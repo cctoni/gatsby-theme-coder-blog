@@ -8,6 +8,8 @@ bio: 'Written by Matt Hagner who lives and works in Minneapolis building'
 readingTime: '5 seconds'
 ---
 
+`video: https://www.youtube.com/embed/2Xc9gXyf2G4`
+
 This is my first post on my new fake blog! How exciting!
 
 I'm sure I'll write a lot more interesting things in the future.

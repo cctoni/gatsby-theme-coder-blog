@@ -3,6 +3,8 @@ module.exports = {
   siteMetadata: {
     title: `Novvum Gatsby Blog Theme`,
     author: `Novvum`,
+    banner:
+      'https://cdn-images-1.medium.com/max/2600/1*6xgfhg4D74iVEJViUgRFyw.png',
     description: `An extension of the gatsby starter blog, with support for MDX`,
     siteUrl: `https://www.novvum.io/`,
     social: {
@@ -15,6 +17,23 @@ module.exports = {
       options: {
         path: `./content/blog`,
         name: `blog`,
+      },
+    },
+    {
+      resolve: 'gatsby-transformer-remark',
+      options: {
+        plugins: [
+          {
+            resolve: 'gatsby-remark-embed-video',
+            options: {
+              width: 800,
+              ratio: 1.77, // Optional: Defaults to 16/9 = 1.77
+              height: 400, // Optional: Overrides optional.ratio
+              related: false, //Optional: Will remove related videos from the end of an embedded YouTube video.
+              noIframeBorder: true, //Optional: Disable insertion of <style> border: 0
+            },
+          },
+        ],
       },
     },
     {

@@ -24,6 +24,7 @@ class BlogIndex extends React.Component {
           piclink="https://www.pixilart.com/images/art/ef9f5113c2530e5.png"
           twitter="novvumio"
         />
+
         {posts.map(({ node }) => {
           const title = node.frontmatter.title || node.fields.slug
           return (
