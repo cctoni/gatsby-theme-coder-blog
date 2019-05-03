@@ -53,11 +53,7 @@ class Layout extends React.Component {
       )
     }
     return (
-      <div
-        style={{
-          maxWidth: '100%',
-        }}
-      >
+      <div>
         {header}
 
         {children}

@@ -66,11 +66,12 @@ const typography = new Typography({
     },
     a: {
       boxShadow: '0 1px 0 0 currentColor',
-      // color: colo,
       textDecoration: 'none',
+      color: 'inherit',
     },
     'a:hover,a:active': {
-      boxShadow: 'none',
+      boxShadow: '0 1px 0 0 currentColor',
+      textDecoration: 'none',
     },
     'mark,ins': {
       background: '#007acc',

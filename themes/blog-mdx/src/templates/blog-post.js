@@ -17,7 +17,14 @@ class BlogPostTemplate extends React.Component {
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
-        <img src={post.frontmatter.banner} width="1280" height="640" />
+        <img
+          src={post.frontmatter.banner}
+          style={{
+            objectFit: 'cover',
+            width: '100vw',
+            height: '50vw',
+          }}
+        />
         <div
           style={{
             maxWidth: rhythm(32),

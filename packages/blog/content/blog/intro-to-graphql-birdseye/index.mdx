@@ -1,0 +1,54 @@
+---
+title: Introducing GraphQL Birdseye
+date: '2019-04-16T10:00:00.200Z'
+author: 'Rohit Ravikoti'
+bio: 'Co-founder of Novvum, a software agency specializing in GraphQL, and daily meditator.'
+twitter: 'rovvum'
+piclink: 'https://cdn-images-1.medium.com/fit/c/100/100/1*GhAwSHN43nefc_vKW0rxRg.png'
+orgaName: 'Novvum'
+orgaPicLink: 'https://www.pixilart.com/images/art/ef9f5113c2530e5.png'
+orgaBio: 'We are Novvum! A hard-working team of engineers, designers, and tech enthusiasts that are looking to share what we know!'
+orgaTwitter: 'novvumio'
+readingTime: '6 min read'
+banner: 'https://cdn-images-1.medium.com/max/2600/1*qg2uZJc1ZvVZM4WNLxsoog.png'
+---
+
+We are proud to officially release `[graphql-birdseye](https://github.com/Novvum/graphql-birdseye)`! Birdseye allows you to view any GraphQL schema as a dynamic and interactive graph. Try it out on our [demo site](https://birdseye.novvum.io/)!
+
+![](https://cdn-images-1.medium.com/max/2400/1*QcqM1X6b4wlo2AUWHn_5zQ.gif)<center><small>“fog of war” interaction</small></center>
+
+Birdseye uses a “fog of war” 🌁 navigation style which dynamically zooms to show a portion of the schema at a time. This significantly simplifies the process of finding related types when compared to displaying the entire schema at once.
+
+### Getting started
+
+You can get started with birdseye by reading the instructions [here](https://github.com/Novvum/graphql-birdseye#installation). The library is currently available as a React component, but if we get requests for other frameworks like Angular or Vue, we would be happy to work on those as well 🙂.
+
+### Why we built it
+
+We were inspired to make a GraphQL schema visualization tool that can you can add to other sites and packages. We have seen a couple of other excellent tools like [graphql-rover](https://brbb.github.io/graphql-rover/), [graphql-voyager](https://www.npmjs.com/package/graphql-voyager) and [graphql editor](https://graphqleditor.com/). We originally planned to integrate voyager with [graphql-playground](https://github.com/prisma/graphql-playground), but it would have added 1.2 MB to the package. This bundle size made the library very difficult to integrate with any other tools.
+
+To solve this problem we created Birdseye which is **_lightweight_** and works well with other tools. In this process, we also made some helpful changes to the user experience (📣 to [Prisma](https://www.prisma.io/) for helping brainstorm the “fog of war” navigation).
+
+### How we built it
+
+When we first started, we spent the first month trying out various diagramming libraries like [WebCola](https://github.com/tgdwyer/WebCola), [Cytoscape.js](http://js.cytoscape.org/), [dagre](https://github.com/dagrejs/dagre) and many more. Some libraries supported a portion of the features while others supported a different subset. At this point, we considered building our own visualization library, and we quickly realized how crazy that would be 😅.
+
+We decided to keep looking and finally came across [JointJS](https://resources.jointjs.com/docs/jointjs/v2.2/joint.html) 🎊. It gave us a nice API to be able to define custom shapes and provided excellent layout and link routing algorithms. It also gave us the ability to modify these algorithms according to our needs. Best of all, it added very little to the bundle size (~70kb).
+
+Having settled on JointJS, the rest of the project focused on understanding the API in more detail and using it to build out the library. Some of the other tools we used to make this happen were:
+
+- [**TypeScript**](https://www.typescriptlang.org/)**:** our go-to language whenever we can use it. The type-safety saves us from a lot of trouble by catching simple issues early on.
+- [**Rollup**](https://rollupjs.org/guide/en)**:** A bundler that specializes in packaging libraries.
+- [**svg-pan-zoom**](https://github.com/ariutta/svg-pan-zoom)**:** Simple pan/zoom solution for SVGs in HTML. It adds events listeners for mouse scroll, double-click, and pan.
+
+### Where we go from here
+
+We are committed to improving this library and make it the go-to for visualizing your schema. We would love to hear your feedback so we can make it even better and we always welcome contributions. Some things we are planning to work on are:
+
+1.  Improve performance for larger schemas
+2.  Option to toggle zoom navigation style
+3.  Smoother UI transitions and interactions
+
+### Tell us what you think 🤔
+
+If you like Birdseye, please follow us on twitter ([@novvumio](https://twitter.com/novvumio)) and give us a star 🌟 on [GitHub](https://github.com/Novvum/graphql-birdseye)! If you find any issues, we’d love to fix them! You can submit them [here](https://github.com/Novvum/graphql-birdseye/issues).
