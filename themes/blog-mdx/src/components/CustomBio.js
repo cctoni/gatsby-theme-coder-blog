@@ -2,35 +2,63 @@ import React from 'react'
 
 import { rhythm } from '../utils/typography'
 
-function CustomBio({ author, twitter, piclink, bio }) {
+import styles from './custombio.module.css'
+
+import { Box, Flex } from 'rebass'
+
+function CustomBio({
+  author,
+  twitter,
+  piclink,
+  bio,
+  orgaPicLink,
+  orgaName,
+  orgaBio,
+}) {
   return (
-    <div
-      style={{
-        display: `flex`,
-        marginBottom: rhythm(2.5),
-      }}
-    >
-      <img
-        src={piclink}
-        alt={author}
-        style={{
-          marginRight: rhythm(1 / 2),
-          marginBottom: 0,
-          width: 50,
-          height: 50,
-          borderRadius: `100%`,
-        }}
-      />
-      <div>
+    <Flex>
+      <Box>
+        <img
+          src={piclink}
+          alt={author}
+          style={{
+            marginRight: rhythm(1 / 2),
+            marginBottom: 0,
+            width: 50,
+            height: 50,
+            borderRadius: `100%`,
+          }}
+        />
+      </Box>
+      <Box>
         <strong>{author}</strong>
-        <p>
-          {bio}{' '}
-          <a target="_blank" href={`https://twitter.com/${twitter}`}>
-            {`Follow @${twitter} on Twitter!`}
-          </a>
-        </p>
-      </div>
-    </div>
+        <p className={styles.userBio}>{bio}</p>
+      </Box>
+      <Box className={styles.buttonBox}>
+        <button className={styles.follow}>Follow</button>
+      </Box>
+
+      <Box className={styles.organization}>
+        <img
+          src={orgaPicLink}
+          alt={orgaName}
+          style={{
+            marginRight: rhythm(1 / 2),
+            marginBottom: 0,
+            width: 50,
+            height: 50,
+            borderRadius: `100%`,
+          }}
+        />
+      </Box>
+      <Box>
+        <strong>{orgaName}</strong>
+        <p className={styles.orgaBio}>{orgaBio}</p>
+      </Box>
+      <Box className={styles.buttonBox}>
+        <button className={styles.follow}>Follow</button>
+      </Box>
+    </Flex>
   )
 }
 
