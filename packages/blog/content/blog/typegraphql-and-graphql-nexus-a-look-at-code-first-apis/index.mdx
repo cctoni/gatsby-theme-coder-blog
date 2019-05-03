@@ -15,6 +15,7 @@ banner: 'https://cdn-images-1.medium.com/max/2600/1*6xgfhg4D74iVEJViUgRFyw.png'
 
 Ever since the Prisma team [announced GraphQL Nexus](https://www.prisma.io/blog/introducing-graphql-nexus-code-first-graphql-server-development-ll6s1yy5cxl5/), there has been much interest in code-first schema development. Here at [Novvum](https://www.novvum.io/), we think this is a massive step in the right direction, but there has been a lot of confusion over how [Nexus](https://nexus.js.org/) differs from [TypeGraphQL](https://typegraphql.ml/). This post aims to break down the differences and hopefully clarify the confusion.
 
+
 ### Code-first: A programmatic API for constructing GraphQL schemas
 
 Before we get started, let’s recap why code-first schema development came to be. A popular approach in the Node.js ecosystem for writing a GraphQL server is schema-first or SDL-first. In the schema-first convention, you first define a schema in a Schema Definition Language (SDL) and write resolvers separately. If you were using TypeScript, you would need to define the schema types a second time to be used in your code. Therefore, making a change in the schema requires changes in three different places — the SDL, the resolvers, and the TypeScript types.
@@ -108,6 +109,14 @@ At Novvum, we have been using Nexus pretty extensively, and we migrated [MarvelQ
 ### Let us know what you think ✍️
 
 I hope this post proved helpful for those who were not sure of what the differences were between the two libraries. If there is still confusion, please [reach out](https://www.novvum.io/contact-us) to us, or you can get a hold of me directly:
+
+```javascript copy-paste
+const hello = () => 'hello world';
+```
+
+```jsx react-live
+//Copy paste snippet here
+```
 
 Email — [rohit@novvum.io](mailto:rohit@novvum.io)
 

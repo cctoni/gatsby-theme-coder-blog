@@ -71,7 +71,7 @@ const typography = new Typography({
     },
     'a:hover,a:active': {
       boxShadow: '0 1px 0 0 currentColor',
-      textDecoration: 'none',
+            textDecoration: 'none',
     },
     'mark,ins': {
       background: '#007acc',

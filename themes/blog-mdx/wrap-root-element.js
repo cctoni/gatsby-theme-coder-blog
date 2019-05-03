@@ -8,12 +8,18 @@ import { preToCodeBlock } from 'mdx-utils'
 const components = {
   pre: preProps => {
     const props = preToCodeBlock(preProps)
+    // console.log(props)
     // if there's a codeString and some props, we passed the test
     if (props) {
       return <Code {...props} />
     } else {
       // it's possible to have a pre without a code in it
-      return <pre {...preProps} />
+      return (
+        <pre
+          {...preProps}
+          style={{ color: 'pink', padding: 5, background: '#999' }}
+        />
+      )
     }
   },
 }
