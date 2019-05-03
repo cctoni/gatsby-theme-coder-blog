@@ -25,7 +25,7 @@ class BlogPostTemplate extends React.Component {
             marginTop: rhythm(-1),
           }}
         >
-          <strong>{post.frontmatter.readingTime}</strong>{' '}
+          <strong>{`Reading Time:${post.timeToRead}`}</strong>{' '}
           {post.frontmatter.date}
         </p>
         <MDXRenderer>{post.code.body}</MDXRenderer>
@@ -82,11 +82,11 @@ export const pageQuery = graphql`
     mdx(fields: { slug: { eq: $slug } }) {
       id
       excerpt(pruneLength: 140)
+      timeToRead
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
         author
-        readingTime
         twitter
         piclink
         bio
