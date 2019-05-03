@@ -1,8 +1,8 @@
 import React from 'react'
 import { Link } from 'gatsby'
-
 import { rhythm, scale } from '../utils/typography'
 import './layout.css'
+import Header from './Header'
 class Layout extends React.Component {
   render() {
     const { location, title, children } = this.props
@@ -54,6 +54,14 @@ class Layout extends React.Component {
     }
     return (
       <div>
+        <Header
+          links={[
+            {
+              title: 'Home',
+              link: '/',
+            },
+          ]}
+        />
         {header}
 
         {children}

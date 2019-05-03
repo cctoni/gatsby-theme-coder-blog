@@ -2,14 +2,12 @@ import React from 'react'
 
 import { rhythm } from '../utils/typography'
 
-import styles from './custombio.module.css'
-
-import { Box, Flex } from 'rebass'
+import './custombio.css'
 
 function SmallCustomBio({ author, piclink, date, readingtime }) {
   return (
-    <Flex>
-      <Box>
+    <div>
+      <div>
         <img
           src={piclink}
           alt={author}
@@ -21,15 +19,15 @@ function SmallCustomBio({ author, piclink, date, readingtime }) {
             borderRadius: `100%`,
           }}
         />
-      </Box>
-      <Box>
+      </div>
+      <div>
         {author}
-        <button className={styles.smallFollow}>Follow</button>
+        <button className="smallFollow">Follow</button>
         <br />
         {date + ' '}
         {readingtime}
-      </Box>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

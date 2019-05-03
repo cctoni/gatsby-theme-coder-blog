@@ -2,9 +2,7 @@ import React from 'react'
 
 import { rhythm } from '../utils/typography'
 
-import styles from './custombio.module.css'
-
-import { Box, Flex } from 'rebass'
+import './custombio.css'
 
 function CustomBio({
   author,
@@ -16,8 +14,8 @@ function CustomBio({
   orgaBio,
 }) {
   return (
-    <Flex>
-      <Box>
+    <div>
+      <div>
         <img
           src={piclink}
           alt={author}
@@ -29,16 +27,16 @@ function CustomBio({
             borderRadius: `100%`,
           }}
         />
-      </Box>
-      <Box>
+      </div>
+      <div>
         <strong>{author}</strong>
-        <p className={styles.userBio}>{bio}</p>
-      </Box>
-      <Box className={styles.buttonBox}>
-        <button className={styles.follow}>Follow</button>
-      </Box>
+        <p className="userBio">{bio}</p>
+      </div>
+      <div className="buttondiv">
+        <button className="follow">Follow</button>
+      </div>
 
-      <Box className={styles.organization}>
+      <div className="organization">
         <img
           src={orgaPicLink}
           alt={orgaName}
@@ -50,15 +48,15 @@ function CustomBio({
             borderRadius: `100%`,
           }}
         />
-      </Box>
-      <Box>
+      </div>
+      <div>
         <strong>{orgaName}</strong>
-        <p className={styles.orgaBio}>{orgaBio}</p>
-      </Box>
-      <Box className={styles.buttonBox}>
-        <button className={styles.follow}>Follow</button>
-      </Box>
-    </Flex>
+        <p className="orgaBio">{orgaBio}</p>
+      </div>
+      <div className="buttondiv">
+        <button className="follow">Follow</button>
+      </div>
+    </div>
   )
 }
 

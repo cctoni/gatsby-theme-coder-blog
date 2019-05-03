@@ -2,8 +2,6 @@ import Typography from 'typography'
 import { MOBILE_MEDIA_QUERY } from 'typography-breakpoint-constants'
 import gray from 'gray-percentage'
 
-// import colors from './colors'
-
 const typography = new Typography({
   baseFontSize: '16px',
   baseLineHeight: 1.5,
@@ -71,7 +69,7 @@ const typography = new Typography({
     },
     'a:hover,a:active': {
       boxShadow: '0 1px 0 0 currentColor',
-            textDecoration: 'none',
+      textDecoration: 'none',
     },
     'mark,ins': {
       background: '#007acc',
