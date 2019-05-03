@@ -8,7 +8,8 @@ import { Box, Flex } from 'rebass'
 
 function CustomBio({
   author,
-  twitter,
+  twitterUser,
+  twitterOrga,
   piclink,
   bio,
   orgaPicLink,
@@ -35,7 +36,9 @@ function CustomBio({
         <p className={styles.userBio}>{bio}</p>
       </Box>
       <Box className={styles.buttonBox}>
-        <button className={styles.follow}>Follow</button>
+        <a target="_blank" href={`https://twitter.com/${twitterUser}`}>
+          <button className={styles.follow}>Follow</button>
+        </a>
       </Box>
 
       <Box className={styles.organization}>
@@ -56,7 +59,9 @@ function CustomBio({
         <p className={styles.orgaBio}>{orgaBio}</p>
       </Box>
       <Box className={styles.buttonBox}>
-        <button className={styles.follow}>Follow</button>
+        <a target="_blank" href={`https://twitter.com/${twitterOrga}`}>
+          <button className={styles.follow}>Follow</button>
+        </a>
       </Box>
     </Flex>
   )

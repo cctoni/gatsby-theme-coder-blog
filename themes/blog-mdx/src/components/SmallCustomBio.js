@@ -6,7 +6,7 @@ import styles from './custombio.module.css'
 
 import { Box, Flex } from 'rebass'
 
-function SmallCustomBio({ author, piclink, date, readingtime }) {
+function SmallCustomBio({ author, piclink, date, readingtime, twitterUser }) {
   return (
     <Flex>
       <Box>
@@ -24,7 +24,10 @@ function SmallCustomBio({ author, piclink, date, readingtime }) {
       </Box>
       <Box>
         {author}
-        <button className={styles.smallFollow}>Follow</button>
+        <a target="_blank" href={`https://twitter.com/${twitterUser}`}>
+          <button className={styles.smallFollow}>Follow</button>
+        </a>
+
         <br />
         {date + ' '}
         {readingtime}

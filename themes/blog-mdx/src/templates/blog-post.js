@@ -58,7 +58,8 @@ class BlogPostTemplate extends React.Component {
           />
           <Bio
             author={post.frontmatter.author}
-            twitter={post.frontmatter.twitter}
+            twitterUser={post.frontmatter.twitterUser}
+            twitterOrga={post.frontmatter.twitterOrga}
             piclink={post.frontmatter.piclink}
             bio={post.frontmatter.bio}
             orgaName={post.frontmatter.orgaName}
@@ -113,7 +114,8 @@ export const pageQuery = graphql`
         title
         date(formatString: "MMMM DD, YYYY")
         author
-        twitter
+        twitterUser
+        twitterOrga
         piclink
         bio
         orgaName

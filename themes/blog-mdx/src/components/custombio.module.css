@@ -1,11 +1,7 @@
-/* Green */
 .follow {
   border-color: #717272;
   color: #717272;
   font-size: 15px;
-  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-    sans-serif !important;
 
   border-radius: 4px;
   padding-left: 14px;
@@ -42,25 +38,6 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-.mainContainer {
-  width: 740px;
-  height: 211px;
-  padding: 20px;
-  margin-top: 20px;
-  font-size: 20px;
-  line-height: 28px;
-  opacity: 84%;
-  text-align: 'start';
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-}
-
-.textAndUser {
-  display: flex;
-  flex-direction: column;
-}
-
 .buttonBox {
   padding-left: 14px;
 }
@@ -69,9 +46,6 @@
   border-color: #717272;
   color: #717272;
   font-size: 15px;
-  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-    sans-serif !important;
 
   margin-left: 10px;
   border-radius: 4px;
@@ -88,13 +62,6 @@
 .smallfollow:hover {
   background-color: #848585;
   color: white;
-}
-
-.name {
-  line-height: 24px;
-  font-size: 21px;
-  text-align: left;
-  font-family: 'Montserrat', sans-serif;
 }
 
 .organization {
