@@ -28,9 +28,7 @@
   opacity: 0.76;
   margin-bottom: 4px;
   line-height: 20px;
-  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-    sans-serif !important;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .userBio {
@@ -41,9 +39,7 @@
   opacity: 0.76;
   margin-bottom: 4px;
   line-height: 20px;
-  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-    sans-serif !important;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .mainContainer {
@@ -69,13 +65,36 @@
   padding-left: 14px;
 }
 
+.smallFollow {
+  border-color: #717272;
+  color: #717272;
+  font-size: 15px;
+  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
+    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+    sans-serif !important;
+
+  margin-left: 10px;
+  border-radius: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  line-height: 19px;
+  width: auto;
+  height: 19px;
+  text-align: center;
+}
+
+.smallfollow:hover {
+  background-color: #848585;
+  color: white;
+}
+
 .name {
   line-height: 24px;
   font-size: 21px;
   text-align: left;
-  font-family: medium-content-sans-serif-font, -apple-system, system-ui,
-    'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .organization {

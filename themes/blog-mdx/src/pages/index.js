@@ -18,12 +18,6 @@ class BlogIndex extends React.Component {
           title="All posts"
           keywords={[`blog`, `gatsby`, `javascript`, `react`]}
         />
-        <Bio
-          author="Novvum"
-          bio="Novvum helps companies build industry leading software infrastructure and products. Experts in GraphQL, React, NodeJS, Serverless and so much more."
-          piclink="https://www.pixilart.com/images/art/ef9f5113c2530e5.png"
-          twitter="novvumio"
-        />
 
         {posts.map(({ node }) => {
           const title = node.frontmatter.title || node.fields.slug

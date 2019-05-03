@@ -3,6 +3,8 @@ import { Link, graphql } from 'gatsby'
 import MDXRenderer from 'gatsby-mdx/mdx-renderer'
 
 import Bio from '../components/CustomBio'
+
+import SmallBio from '../components/SmallCustomBio'
 import Layout from '../components/Layout'
 import SEO from '../components/seo'
 import { rhythm, scale } from '../utils/typography'
@@ -33,8 +35,13 @@ class BlogPostTemplate extends React.Component {
               marginTop: rhythm(-1),
             }}
           >
-            <strong>{post.frontmatter.readingTime}</strong>{' '}
-            {post.frontmatter.date}
+            <h1>{post.frontmatter.title}</h1>
+            <SmallBio
+              author={post.frontmatter.author}
+              piclink={post.frontmatter.piclink}
+              date={post.frontmatter.date}
+              readingtime={post.frontmatter.readingTime}
+            />
           </p>
           <MDXRenderer>{post.code.body}</MDXRenderer>
           <hr
@@ -42,7 +49,6 @@ class BlogPostTemplate extends React.Component {
               marginBottom: rhythm(1),
             }}
           />
-          {console.log(post)}
           <Bio
             author={post.frontmatter.author}
             twitter={post.frontmatter.twitter}
@@ -51,7 +57,6 @@ class BlogPostTemplate extends React.Component {
             orgaName={post.frontmatter.orgaName}
             orgaPicLink={post.frontmatter.orgaPicLink}
             orgaBio={post.frontmatter.orgaBio}
-            banner={post.frontmatter.banner}
           />
 
           <ul

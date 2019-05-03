@@ -3,8 +3,6 @@ module.exports = {
   siteMetadata: {
     title: `Novvum Gatsby Blog Theme`,
     author: `Novvum`,
-    banner:
-      'https://cdn-images-1.medium.com/max/2600/1*6xgfhg4D74iVEJViUgRFyw.png',
     description: `An extension of the gatsby starter blog, with support for MDX`,
     siteUrl: `https://www.novvum.io/`,
     social: {

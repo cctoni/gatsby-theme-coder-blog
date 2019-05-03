@@ -55,12 +55,7 @@ class Layout extends React.Component {
     return (
       <div
         style={{
-          marginLeft: `auto`,
-          marginRight: `auto`,
-
-          //maxWidth: rhythm(32),
           maxWidth: '100%',
-          //padding: `${rhythm(1.5)} ${rhythm(3 / 4)}`,
         }}
       >
         {header}
