@@ -68,6 +68,7 @@ function BioCard({ author, twitter, piclink, bio }) {
 function CustomBio({
   author,
   twitter,
+  orgaTwitter,
   piclink,
   bio,
   orgaPicLink,
