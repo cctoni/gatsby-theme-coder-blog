@@ -6,7 +6,7 @@ import './custombio.css'
 
 function SmallCustomBio({ author, piclink, date, readingtime }) {
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       <div>
         <img
           src={piclink}

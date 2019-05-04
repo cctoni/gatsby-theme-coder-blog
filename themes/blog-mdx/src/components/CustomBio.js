@@ -14,7 +14,7 @@ function CustomBio({
   orgaBio,
 }) {
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       <div>
         <img
           src={piclink}
