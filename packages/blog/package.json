@@ -17,6 +17,7 @@
     "serve": "gatsby serve",
     "test": "echo \"Write tests! -> https://gatsby.app/unit-testing\"",
     "clean": "gatsby clean && rm -rf yarn-error.log",
-    "nuke": "yarn clean && rm -rf node_modules"
+    "nuke": "yarn clean && rm -rf node_modules",
+    "now-build": "gatsby build"
   }
 }
