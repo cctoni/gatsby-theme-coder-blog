@@ -1,0 +1,16 @@
+{
+  "public": true,
+  "version": 2,
+  "name": "novvum-blog-theme",
+  "alias": "novvum-blog.now.sh",
+  "builds": [
+    {
+      "src": "packages/blog/package.json",
+      "use": "@now/static-build",
+      "config": {
+        "distDir": "public"
+      }
+    }
+  ],
+  "routes": [{ "src": "/(.*)", "dest": "/packages/blog/$1" }]
+}
