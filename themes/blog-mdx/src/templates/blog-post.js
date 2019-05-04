@@ -48,6 +48,7 @@ class BlogPostTemplate extends React.Component {
               piclink={post.frontmatter.piclink}
               date={post.frontmatter.date}
               readingtime={post.frontmatter.readingTime}
+              twitter={post.frontmatter.twitter}
             />
           </p>
           <MDXRenderer>{post.code.body}</MDXRenderer>
@@ -64,6 +65,7 @@ class BlogPostTemplate extends React.Component {
             orgaName={post.frontmatter.orgaName}
             orgaPicLink={post.frontmatter.orgaPicLink}
             orgaBio={post.frontmatter.orgaBio}
+            orgaTwitter={post.frontmatter.orgaTwitter}
           />
 
           <ul
@@ -118,6 +120,7 @@ export const pageQuery = graphql`
         bio
         orgaName
         orgaPicLink
+        orgaTwitter
         orgaBio
         banner
       }

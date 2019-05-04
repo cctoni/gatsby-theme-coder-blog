@@ -7,6 +7,7 @@ import './custombio.css'
 function CustomBio({
   author,
   twitter,
+  orgaTwitter,
   piclink,
   bio,
   orgaPicLink,
@@ -33,7 +34,9 @@ function CustomBio({
         <p className="userBio">{bio}</p>
       </div>
       <div className="buttondiv">
-        <button className="follow">Follow</button>
+        <a target="_blank" href={`https://twitter.com/${twitter}`}>
+          <button className="follow">Follow</button>
+        </a>
       </div>
 
       <div className="organization">
@@ -54,7 +57,9 @@ function CustomBio({
         <p className="orgaBio">{orgaBio}</p>
       </div>
       <div className="buttondiv">
-        <button className="follow">Follow</button>
+        <a target="_blank" href={`https://twitter.com/${orgaTwitter}`}>
+          <button className="follow">Follow</button>
+        </a>
       </div>
     </div>
   )

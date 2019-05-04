@@ -4,7 +4,7 @@ import { rhythm } from '../utils/typography'
 
 import './custombio.css'
 
-function SmallCustomBio({ author, piclink, date, readingtime }) {
+function SmallCustomBio({ author, piclink, date, readingtime, twitter }) {
   return (
     <div style={{ display: 'flex' }}>
       <div>
@@ -22,7 +22,13 @@ function SmallCustomBio({ author, piclink, date, readingtime }) {
       </div>
       <div>
         {author}
-        <button className="smallFollow">Follow</button>
+        <a
+          target="_blank"
+          href={`https://twitter.com/${twitter}`}
+          style={{ textDecoration: 'none' }}
+        >
+          <button className="smallFollow">Follow</button>
+        </a>
         <br />
         {date + ' '}
         {readingtime}
