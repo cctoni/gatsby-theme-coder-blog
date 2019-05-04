@@ -1,60 +1,20 @@
 import React from 'react'
-import { Link } from 'gatsby'
-import { rhythm, scale } from '../utils/typography'
+import styled from 'styled-components'
+import tw from 'tailwind.macro'
 import './layout.css'
 import Header from './Header'
+
+export const Container = styled.div`
+  ${tw`container mx-auto max-w-lg px-4`}
+`
 class Layout extends React.Component {
   render() {
     const { location, title, children } = this.props
     const rootPath = `${__PATH_PREFIX__}/`
-    let header
-
-    if (location.pathname === rootPath) {
-      header = (
-        <h1
-          style={{
-            ...scale(1.5),
-            marginBottom: rhythm(1.5),
-            marginTop: 0,
-          }}
-        >
-          <Link
-            style={{
-              boxShadow: `none`,
-              textDecoration: `none`,
-              color: `inherit`,
-            }}
-            to={`/`}
-          >
-            {title}
-          </Link>
-        </h1>
-      )
-    } else {
-      header = (
-        <h3
-          style={{
-            fontFamily: `"Inter", sans-serif`,
-            marginTop: 0,
-            marginBottom: rhythm(-1),
-          }}
-        >
-          <Link
-            style={{
-              boxShadow: `none`,
-              textDecoration: `none`,
-              color: `inherit`,
-            }}
-            to={`/`}
-          >
-            {title}
-          </Link>
-        </h3>
-      )
-    }
     return (
-      <div>
+      <>
         <Header
+          title={title}
           links={[
             {
               title: 'Home',
@@ -62,15 +22,13 @@ class Layout extends React.Component {
             },
           ]}
         />
-        {header}
-
         {children}
         <footer>
           © {new Date().getFullYear()}, Built by
           {` `}
           <a href="https://www.gatsbyjs.org">Novvum</a>
         </footer>
-      </div>
+      </>
     )
   }
 }

@@ -1,32 +1,18 @@
 import React from 'react'
+import { Bio, Image, Content, Author, Details } from './CustomBio'
 
-import { rhythm } from '../utils/typography'
-
-import './custombio.css'
-
-function SmallCustomBio({ author, piclink, date, readingtime }) {
+function SmallCustomBio({ author, piclink, date, readingTime }) {
   return (
     <div>
-      <div>
-        <img
-          src={piclink}
-          alt={author}
-          style={{
-            marginRight: rhythm(1 / 2),
-            marginBottom: 0,
-            width: 50,
-            height: 50,
-            borderRadius: `100%`,
-          }}
-        />
-      </div>
-      <div>
-        {author}
-        <button className="smallFollow">Follow</button>
-        <br />
-        {date + ' '}
-        {readingtime}
-      </div>
+      <Bio>
+        <Image src={piclink} alt={author} />
+        <Content>
+          <Author>{author}</Author>
+          <Details>
+            {readingTime ? `${date} • ${readingTime}` : `${date}`}
+          </Details>
+        </Content>
+      </Bio>
     </div>
   )
 }

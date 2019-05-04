@@ -47,7 +47,7 @@ class BlogPostTemplate extends React.Component {
               author={post.frontmatter.author}
               piclink={post.frontmatter.piclink}
               date={post.frontmatter.date}
-              readingtime={post.frontmatter.readingTime}
+              readingTime={`${post.timeToRead} Min Read`}
             />
           </p>
           <MDXRenderer>{post.code.body}</MDXRenderer>
@@ -111,7 +111,7 @@ export const pageQuery = graphql`
       timeToRead
       frontmatter {
         title
-        date(formatString: "MMMM DD, YYYY")
+        date(formatString: "MMMM DD")
         author
         twitter
         piclink

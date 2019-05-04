@@ -6,16 +6,16 @@ const typography = new Typography({
   baseFontSize: '16px',
   baseLineHeight: 1.5,
   scaleRatio: 5 / 2,
-  headerFontFamily: ['Inter', 'system-ui', 'sans-serif'],
+  headerFontFamily: ['-apple-system', 'system-ui', 'sans-serif'],
   headerWeight: 700,
-  bodyFontFamily: ['Inter', 'system-ui', 'sans-serif'],
+  bodyFontFamily: ['-apple-system', 'system-ui', 'sans-serif'],
   bodyWeight: 400,
   headerColor: 'inherit',
   bodyColor: 'inherit',
   includeNormalize: false,
   overrideStyles: ({ adjustFontSizeTo, scale, rhythm }, options) => ({
     h1: {
-      fontFamily: ['Montserrat', 'sans-serif'].join(','),
+      fontFamily: ['-apple-system', 'sans-serif'].join(','),
     },
     blockquote: {
       ...scale(1 / 5),
